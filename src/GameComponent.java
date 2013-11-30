@@ -1,5 +1,7 @@
 import java.awt.*;
+
 import javax.swing.*;
+
 import java.util.*;
 
 public class GameComponent extends JComponent {
@@ -68,10 +70,10 @@ public class GameComponent extends JComponent {
   	}
   	
   	//Sets the foreground image to display
-  	public void setImage(Image newImage) {
-  		foreground = newImage;
+  	public void setImage(String image) {
+  		foreground = new ImageIcon(image).getImage();
   	}
-  	
+
   	//Updates the image's position
   	public void updateImage(int x, int y) {
   		xPosition = x;

@@ -78,7 +78,7 @@ public class Level {
 			System.out.println("Error occured: " + e.getMessage());
 		}
 		main = comp;
-    	main.setImage(new ImageIcon("Images/chell_stand.gif").getImage());
+    	main.setImage("Images/chell_right.gif");
     	main.setWalls(walls);
     	main.updateImage(startX, startY);
     	System.out.println("no");

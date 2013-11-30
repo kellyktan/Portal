@@ -108,6 +108,7 @@ public class Keyboard implements KeyListener {
     			{
 	    			xPos -= 10;
 	    			xVel -= 1;
+	    			comp.setImage("Images/chell_left.gif");
 	    			comp.updateImage(xPos, yPos);
     			}
     			break;
@@ -135,6 +136,7 @@ public class Keyboard implements KeyListener {
     			{
 	    			xPos += 10;
 	    			xVel += 1;
+	    			comp.setImage("Images/chell_right.gif");
 	    			comp.updateImage(xPos, yPos);
     			}
     			break;
@@ -182,8 +184,8 @@ public class Keyboard implements KeyListener {
 		{
     		for (Wall a: walls)				// checks list of walls to see if there is a wall at position
     		{
-    			if (xPos + 20 > a.getX() && xPos + 5 < a.getX() + 25 &&
-    				yPos + 25 > a.getY() && yPos < a.getY() + 25)
+    			if (xPos + 54 > a.getX() && xPos + 10 < a.getX() + 32 &&
+    				yPos + 58 > a.getY() && yPos + 6 < a.getY() + 32)
     			{
     				if (a instanceof Portal)
     				{
