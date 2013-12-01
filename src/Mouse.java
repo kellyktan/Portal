@@ -23,6 +23,8 @@ public class Mouse extends MouseAdapter
 	// post: sets list of walls to wlls
 	public void setWalls(ArrayList<Wall> walls)
 	{
+		bluPortal = -1;
+		orgPortal = -1;
 		this.walls = walls;
 		setGrid(walls);
 	}
@@ -36,7 +38,6 @@ public class Mouse extends MouseAdapter
     	int mouseX = e.getX();
     	int mouseY = e.getY();
     	if (comp.contains(mouseX, mouseY)) {
-    		System.out.println("click");
     		final boolean blue = mouseCode == MouseEvent.BUTTON1;
 	    	double x = comp.getChellX() + 32;
 	    	double y = comp.getChellY() + 32;

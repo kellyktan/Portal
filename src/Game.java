@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.io.IOException;
 
 import javax.swing.*;
@@ -22,43 +23,14 @@ public class Game {
 	// post: intilizes menu with options to play or choose level
 	public void init()
 	{
-		Object[] startOptions = {"Play", "Level Select"}; 					// start options
+		introduction();
+		Object[] startOptions = {"Begin", "Select Test Chamber"}; 					// start options
 		String title = "Aperture Science Enrichment Center"; 				// title of window
 		int response = JOptionPane.showOptionDialog(null, "Menu", title, 
 			JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
 			startOptions, startOptions[0]);
 		if (response == 0) 													// starts with level 1
-		{
-			introduction();
-			try {
-				frame = new JFrame("Aperture Laboratories");
-				panel = new JPanel();
-				frame.add(panel);
-				
-				comp = new GameComponent("Images/background.gif");
-				playing = false;
-				keyboard = new Keyboard(playing);
-				mouse = new Mouse(comp, keyboard);
-				keyboard.setMouse(mouse);
-				comp.setFocusable(true);
-				comp.addKeyListener(keyboard);
-				comp.addMouseListener(mouse);
-				
-				Level first = new Level("Levels/Level 1.txt", keyboard, comp);
-				panel.add(first.getComponent());
-				panel.add(new JButton());
-				frame.pack();
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.setVisible(true);
-				mouse.setWalls(first.getWalls());
-				//keyboard.setInitPos(first.getX(), first.getY());
-				keyboard.setLevel(first, 1);
-				frame.dispose();
-				JOptionPane.showMessageDialog(null, "You win. You Monster.");
-			} catch (IOException e) {
-				System.out.println(e.getMessage());
-			}
-		}
+			init(1);
 		else if (response == 1) 											// opens menu with different menu options
 			levelSelect();
 	}
@@ -66,52 +38,71 @@ public class Game {
 	// post: initilizes menu with different levels to select
 	public void levelSelect()
 	{
-		Object[] levels = {"Level 1", "Level 2", "Level 3", "Level 4", "Level 5"};
+		Object[] levels = {"Test Chamber 01", "Test Chamber 02", "Test Chamber 03", 
+			"Test Chamber 04", "Test Chamber 05"};
 		
-		int response = JOptionPane.showOptionDialog(null, "Select Level", "Level Select", 
+		int response = JOptionPane.showOptionDialog(null, "Select Test Chamber", "Select Test Chamber", 
 			JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
 			levels, levels[0]);
 		
-		// level options	
-		if (response == 0)
-		{
-			introduction();
-		//	allLevel.start(1);
-		}
-		else if (response == 1)
-		{
-			introduction();
-		//	allLevel.start(2);
-		}
-		else if (response == 2)
-		{
-			introduction();
-		//	allLevel.start(3);
-		}
-		else if (response == 3)
-		{
-			introduction();
-		//	allLevel.start(4);
-		}
-		else if (response == 4)
-		{
-			introduction();
-			//allLevel.start(5);
-		}
+		init(response + 1);
 	}
+
 	public void introduction()
 	{
-		JOptionPane.showMessageDialog(null, "Hello and, again, welcome to the Aperture Science computer-aided enrichment" +
-			" center.\nYour specimen has been processed and we are now ready to begin the test proper.\nBefore we start," +
-			" however, keep in mind that although fun and learning are\nthe primary goals of all enrichment center" +
-			" activities, serious injuries may occur.\n\nYou are now in possession of the Aperture Science Handheld" +
-			" Portal Device.\nWith it, you can create your own portals.  These interdimensional gates have been\nproven" +
-			" to be completely safe.");
-		JOptionPane.showMessageDialog(null, "Instructions:\nMake way through testing chamber in order to reach the " +
-			"door and move on to the next level\n\nNavigation:  W = up arrow, D = right arrow," +
-			" S = down arrow, A = left arrow\n\nPlacing Portals:  hold direction key (1 = up, 2 = right, 3 = left," + 
-			" 4 = down) while clicking with \neither left (blue) or right (orange) mouse button on a grey portalable" +
-			" surface\n\nWarning: Spikes will kill you if you land on them\n\nDisclaimer:  We are using the honor" +
-			" system and trusting you to only shoot portals on walls\nwithin your view");
+		JOptionPane.showMessageDialog(null, "\nHello and, again, welcome to the" + 
+			" Aperture Science computer-aided enrichment center.\nYour specimen" + 
+			" has been processed and we are now ready to begin the test proper" +
+			".\nBefore we start, however, keep in mind that although fun and " +
+			"learning are\nthe primary goals of all enrichment center activities," +
+			" serious injuries may occur.\nFor your own safety and the safety of" +
+			" others, please refrain from--\nPor favor bord—n de fallar.  Muchos " +
+			"gracias de fallar gracias.", "Aperture Science Enrichment Center" +
+			" welcomes Subject #1498", JOptionPane.PLAIN_MESSAGE);
+		JOptionPane.showMessageDialog(null, "\nYou are now in possession of the" +
+			" Aperture Science Handheld Portal Device.\nWith it, you can create" +
+			" your own portals.  These interdimensional gates have been\nproven" +
+			" to be completely safe.  The Device, however, has not:\n\n  -  Do not" +
+			" touch the operational end of The Device\n  -  Do not look directly" +
+			" at the operational end of The Device\n  -  Do not submerge The " +
+			"Device in liquid, even partially\n  -  Most importantly, under no" +
+			" circumstances should you--", "Aperture Science Enrichment Center",
+			JOptionPane.PLAIN_MESSAGE);
+		JOptionPane.showMessageDialog(null, "\nINSTRUCTIONS:\n\nMake your way through" +
+			" each test chamber in order to reach the door and move on to the next" +
+			" chamber\n\nNAVIGATION:  W = move up, D = move right, S = move down," +
+			" A = move left\n\nPLACING PORTALS:  click either left (blue) or" +
+			" right (orange) mouse button in the desired shooting direction\n\n" +
+			"WARNING:  spikes will kill you if you touch them",
+			"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE);
+	}
+	
+	public void init(int num) {
+		try {
+			frame = new JFrame("Aperture Laboratories");
+			panel = new JPanel();
+			frame.add(panel);
+			panel.setLayout(new BorderLayout());
+			
+			comp = new GameComponent("Images/background.gif");
+			playing = false;
+			keyboard = new Keyboard(playing);
+			mouse = new Mouse(comp, keyboard);
+			keyboard.setMouse(mouse);
+			comp.setFocusable(true);
+			comp.addKeyListener(keyboard);
+			comp.addMouseListener(mouse);
+			
+			Level start = new Level("Levels/Level " + num + ".txt", keyboard, comp);
+			panel.add(start.getComponent(), BorderLayout.WEST);
+			panel.add(new JButton());
+			frame.pack();
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setVisible(true);
+			keyboard.startLevel(start, num);
+			frame.dispose();
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}		
 	}
 }

@@ -65,7 +65,6 @@ public class Level {
 						count++;
 					} else if (count == 1) {
 						walls.add(new Door(x, y));
-						walls.add(new Door(x, y+32));
 						count++;
 					} else if (count == 2) {
 						walls.add(new Wall(x, y, false, dir));

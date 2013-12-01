@@ -2,6 +2,7 @@ import javax.swing.*;
 
 import java.awt.event.*;
 import java.util.*;
+import java.io.*;
 
 public class Keyboard extends KeyAdapter {
 	// private variables
@@ -19,8 +20,7 @@ public class Keyboard extends KeyAdapter {
 	private Boolean playing;					// whether or not game is complete
 	
 	// constructor constructs frame with walls, level number, and Chell's position (x,y) and velocity
-    public Keyboard(Boolean playing) 
-    {
+    public Keyboard(Boolean playing) {
     	xVel = 0;				// starts with 0 velocity
     	yVel = 0;
     	this.playing = playing;
@@ -30,30 +30,26 @@ public class Keyboard extends KeyAdapter {
     // MOVING IN GENERAL
     // pre: none
     // post: moves Chell with time, implementing gravity and friction when appropriate
-    public void spaceTime()
-    {
+    public void spaceTime() {
     	long lastTime = System.currentTimeMillis();
-    	while (playing)										// keeps going until game is complete
-    	{
+    	while (playing)	{
+    		// keeps going until game is complete
     		long time = System.currentTimeMillis();
-    		if (time - 10 > lastTime)							// increments every 10 milliseconds
-    		{
+    		if (time - 10 > lastTime) {
+    			// increments every 10 milliseconds
     			totalTime += time - lastTime;
     			lastTime = time;
     			// resets 'previous' time
     			if (yVel + GRAVITY < TERMINALVEL)
-	    			yVel += GRAVITY;							// adds gravity constant to vertical velocity
-    			if (!isValid(xPos, yPos + 25))		// determines whether or not Chell is
-    															// is on a surface and has friction
-    			{
-    				if (xVel > 0)
-    				{
+    				// adds gravity constant to vertical velocity
+    				yVel += GRAVITY;
+    			if (!isValid(xPos, yPos + 25)) {
+    				// determines whether or not Chell is on a surface/has friction
+    				if (xVel > 0) {
     					xVel -= FRICTION;
     					if (xVel < 0)
     						xVel = 0;
-    				}
-    				else if (xVel < 0)
-    				{
+    				} else if (xVel < 0) {
     					xVel += FRICTION;
     					if (xVel > 0)
     						xVel = 0;
@@ -74,99 +70,71 @@ public class Keyboard extends KeyAdapter {
     // pre: none
     // post: moves with WADS, sets portal direction with 1234 and 
     //       sets direction key pressed to true
-    public void keyPressed(KeyEvent e)
-    {
-    	System.out.println("key pressed");
+    public void keyPressed(KeyEvent e) {
     	int keyCode = e.getKeyCode();
-    	switch(keyCode)
-    	{
+    	switch(keyCode) {
     		case KeyEvent.VK_A:											// A - moves left
-    			if (isValid(xPos - 10, yPos))
-    			{
+	    		comp.setImage("Images/chell_left.gif");
+    			if (isValid(xPos - 10, yPos)) {
 	    			xPos -= 10;
 	    			xVel -= 1;
-	    			comp.setImage("Images/chell_left.gif");
 	    			comp.updateImage(xPos, yPos);
-    			}
-    			break;
+    			} break;
     		case KeyEvent.VK_W:											// W - jumps
-    			if (!isValid(xPos, yPos + 25))
-    			{
-	    			if (isValid(xPos, yPos - 10))
-	    			{
+    			if (!isValid(xPos, yPos + 25)) {
+	    			if (isValid(xPos, yPos - 10)) {
 		    			yPos -= 10;
 		    			yVel -= 2;
 		    			comp.updateImage(xPos, yPos);
 	    			}
-    			}
-    			break;
+    			} break;
     		case KeyEvent.VK_S:											//S - moves down
-    			if (isValid(xPos, yPos + 10))
-    			{
+    			if (isValid(xPos, yPos + 10)) {
 	    			yPos += 10;
 	    			yVel += 1;
 	    			comp.updateImage(xPos, yPos);
-    			}
-    			break;
+    			} break;
     		case KeyEvent.VK_D:											// D - moves right
-    			if (isValid(xPos + 10, yPos))
-    			{
+	    		comp.setImage("Images/chell_right.gif");
+    			if (isValid(xPos + 10, yPos)) {
 	    			xPos += 10;
 	    			xVel += 1;
-	    			comp.setImage("Images/chell_right.gif");
 	    			comp.updateImage(xPos, yPos);
-    			}
-    			break;
+    			} break;
     		default:
     			//other key pressed: ignore
     			break;
     	}
     }
     
-    // pre: none
-    // post: resets direction key pressed to false
-    public void keyReleased(KeyEvent e)
-    {
-    	System.out.println("key released");
-    }
-    
     // pre: walls is not null
     // post: returns whether or not certain potential position is valid
-    public boolean isValid(int x, int y)
-    {	
+    public boolean isValid(int x, int y) {	
     	boolean answer = true;
-		if (walls.size() != 0)
-		{
-    		for (int i = 0; i < walls.size(); i++)				// checks list of walls to see if there is a wall at position
-    		{
+		if (walls.size() != 0) {
+    		for (int i = 0; i < walls.size(); i++) {
+    			// Checks list of walls to see if there's a wall at that position
     			Wall a = walls.get(i);
     			if (x + 54 > a.getX() && x + 10 < a.getX() + 32 &&
     				y + 58 > a.getY() && y + 6 < a.getY() + 32)
     			{
-    				if (a instanceof Portal)
-    				{
+    				if (a instanceof Portal) {
     					Portal b = (Portal)a;
     					throughPortal(b);	// moves through portal
-    				}
-    				else if (a instanceof Spike) // die if you touch
-    				{
+    				} else if (a instanceof Spike) {
+    					// you died...
     					JOptionPane.showMessageDialog(null, "You died");
     					// reset to beginning of level
-    					xPos = initialX;
-    					yPos = initialY;
-    					xVel = 0;
-    					yVel = 0;
-    					comp.updateImage(xPos, yPos);
-    				}
-    				else if (a instanceof Door) // you win
-    				{
-    					if (levelNum < 1)
-    					{
-    						System.out.println("who goes there");
-    					}
-    					else
-    					{
-    						playing = false; // stops moveIt()
+    					nextLevel(levelNum);
+    				} else if (a instanceof Door) {
+    					// you completed this level
+    					if (levelNum < 2){
+    						levelNum++;
+    						nextLevel(levelNum);
+    					} else {
+    						playing = false;
+    						JOptionPane.showMessageDialog(null, "You win. You" +
+    							" Monster.", "Aperture Science", JOptionPane.PLAIN_MESSAGE);
     					}
     				}
     				answer = false;
@@ -179,22 +147,18 @@ public class Keyboard extends KeyAdapter {
     // MOVING BETWEEN PORTALS
     // pre: none
     // post: finds other portal and transfers Chell there, preserving velocity
-    public void throughPortal(Portal here)
-    {
+    public void throughPortal(Portal here) {
     	boolean blue = here.isBlue();
     	int thisDir = here.getDirection();
     	Portal other = null;
-    	for (Wall wall: walls)
-    	{
-    		if (wall instanceof Portal)
-    		{
+    	for (Wall wall: walls) {
+    		if (wall instanceof Portal) {
     			Portal portal = (Portal)wall;
     			if (portal.isBlue() != blue)
     				other = portal;
     		}
     	}
-    	if (other != null)
-    	{
+    	if (other != null) {
 			int nextDir = other.getDirection();
 			int nextX = other.getX();
 			int nextY = other.getY();
@@ -233,28 +197,38 @@ public class Keyboard extends KeyAdapter {
     }
     // pre: none
     // post: updates velocity to be appropriate direction
-    public void doVelocity(int thisDir, int nextDir)
-    {
-		if (thisDir == nextDir)
-		{
+    public void doVelocity(int thisDir, int nextDir) {
+		if (thisDir == nextDir) {
 			xVel = 0 - xVel;
 			yVel = 0 - yVel;
-		}
-		else if (thisDir + 1 == nextDir || thisDir - 3 == nextDir)
-		{
+		} else if (thisDir + 1 == nextDir || thisDir - 3 == nextDir) {
 			double temp = yVel;
 			yVel = 0 - xVel;
 			xVel = temp;
-		}
-		else if (thisDir - 1 == nextDir || thisDir + 3 == nextDir)
-		{
+		} else if (thisDir - 1 == nextDir || thisDir + 3 == nextDir) {
 			double temp = yVel;
 			yVel = xVel;
 			xVel = 0 - temp;
 		}
     }
     
-    public void setLevel(Level level, int num) {
+    public void nextLevel(int num) {
+    	try {
+    		Level level = new Level("Levels/Level " + num + ".txt", this, comp);
+	    	levelNum = num;
+	    	comp = level.getComponent();
+	    	walls = level.getWalls();
+	    	mouse.setWalls(walls);
+	    	initialX = level.getX();
+	    	initialY = level.getY();
+	    	xPos = initialX;
+	    	yPos = initialY;
+	    	playing = true;
+	    	comp.updateImage(xPos,yPos);
+    	} catch (IOException e) {System.out.println(e.getMessage());}
+    }
+    
+    public void startLevel(Level level, int num) {
     	levelNum = num;
     	comp = level.getComponent();
     	walls = level.getWalls();
@@ -264,6 +238,7 @@ public class Keyboard extends KeyAdapter {
     	xPos = initialX;
     	yPos = initialY;
     	playing = true;
+    	comp.updateImage(xPos,yPos);
     	spaceTime();
     }
     

@@ -73,6 +73,7 @@ public class GameComponent extends JComponent {
   	//Sets the foreground image to display
   	public void setImage(String image) {
   		foreground = new ImageIcon(image).getImage();
+  		repaint();
   	}
 
   	//Updates the image's position
