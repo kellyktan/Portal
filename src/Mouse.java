@@ -38,13 +38,13 @@ public class Mouse extends MouseAdapter
     	int mouseX = e.getX();
     	int mouseY = e.getY();
     	if (comp.contains(mouseX, mouseY)) {
-    		final boolean blue = mouseCode == MouseEvent.BUTTON1;
+    		boolean blue = mouseCode == MouseEvent.BUTTON1;
 	    	double x = comp.getChellX() + 32;
 	    	double y = comp.getChellY() + 32;
-	    	final double slope = slope(x, y, mouseX, mouseY);
-	    	final boolean right = x < mouseX;
-	    	final boolean above = y < mouseY;
-	    	final boolean smallInc = slope < 10;
+	    	double slope = slope(x, y, mouseX, mouseY);
+	    	boolean right = x < mouseX;
+	    	boolean above = y < mouseY;
+	    	boolean smallInc = slope < 10;
 	    	boolean hitWall = false;
 	    	while (comp.contains((int)Math.round(x),(int)Math.round(y)) && !hitWall) {
 	    		int gridX = (int) Math.round(x) / 32;

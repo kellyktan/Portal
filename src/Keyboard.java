@@ -8,17 +8,17 @@ public class Keyboard extends KeyAdapter {
 	// private variables
 	private GameComponent comp;					// the panel Chell moves around in
 	private Mouse mouse;					   	// the mouse
-	private long totalTime;							// keeps track of the time
-	private int levelNum;
+	private long totalTime;						// keeps track of the time
+	private int levelNum;						// keeps track of level
 	private int initialX, initialY;				// the initial x and y positions
-	private int xPos, yPos;			// Chell's x and y position
+	private int xPos, yPos;						// Chell's x and y position
 	private ArrayList<Wall> walls;				// list of walls
-	private int[][] grid;
+	private int[][] grid;						// grid mapping wall indexes
 	private double xVel, yVel;					// Chell's x and y velocities
 	private final double GRAVITY = 0.05;		// gravity constant
 	private final double FRICTION = 0.1;		// friction constant
 	private final int TERMINALVEL = 25;			// Chell's terminal velocity
-	private Boolean playing;					// whether or not game is complete
+	private Boolean playing;					// whether or not currently playing
 	
 	// constructor constructs frame with walls, level number, and Chell's position (x,y) and velocity
     public Keyboard(Boolean playing) {
