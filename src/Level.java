@@ -22,28 +22,33 @@ public class Level {
 			while (s != null)
 			{
 				s = s.trim().toLowerCase();
-				if (s.matches("\\d+,\\d+-\\d+,\\d+")) {
+				if (s.matches("\\d+,\\d+-\\d+,\\d+:\\d")) {
 					int comma = s.indexOf(",");
 					int end = s.indexOf("-");
+					// starting coordinate
 					int x1 = Integer.parseInt(s.substring(0, comma));
 					int y1 = Integer.parseInt(s.substring(comma + 1, end));
 					s = s.substring(end + 1);
 					comma = s.indexOf(",");
+					// ending coordinate
 					int x2 = Integer.parseInt(s.substring(0, comma));
-					int y2 = Integer.parseInt(s.substring(comma + 1));
+					int y2 = Integer.parseInt(s.substring(comma + 1, s.length() - 2));
+					// direction
+					int dir = Integer.parseInt(s.substring(s.length() - 1));
 					for (int x = x1; x < x2; x += 32) {
 						for (int y = y1; y < y2; y += 32) {
-							if (count == 2)
-								walls.add(new Wall(x, y, false));
-							else
-								walls.add(new Wall(x, y, true));
+							if (count == 2) // non portalable wall
+								walls.add(new Wall(x, y, false, dir));
+							else // portalable wall
+								walls.add(new Wall(x, y, true, dir));
 						}
 					}
 					
-				} else if (s.matches("\\d+,\\d+")) {
+				} else if (s.matches("\\d+,\\d+:\\d")) {
 					int comma = s.indexOf(",");
 					int x = Integer.parseInt(s.substring(0,comma));
-					int y = Integer.parseInt(s.substring(comma + 1).trim());
+					int y = Integer.parseInt(s.substring(comma + 1, s.length() - 2));
+					int dir = Integer.parseInt(s.substring(s.length() - 1));
 					
 					if (count == 0) {
 						startX = x;
@@ -54,9 +59,9 @@ public class Level {
 						walls.add(new Door(x,y+32));
 						count++;
 					} else if (count == 2) {
-						walls.add(new Wall(x,y,false));
+						walls.add(new Wall(x,y,false, dir));
 					} else {
-						walls.add(new Wall(x,y,true));
+						walls.add(new Wall(x,y,true, dir));
 					}
 				} else if (s.equals("portalable")) {
 					count = 3;
@@ -81,8 +86,6 @@ public class Level {
     	main.setImage("Images/chell_right.gif");
     	main.setWalls(walls);
     	main.updateImage(startX, startY);
-    	System.out.println("no");
-    	System.out.println("why");
 	}
 	
 	public GameComponent getComponent() {

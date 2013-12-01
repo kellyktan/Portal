@@ -8,7 +8,7 @@ public class GameComponent extends JComponent {
 	//private variables
 	private Image background; 				// the background image
   	private Image foreground; 				// moving foreground image
-  	private int xPosition, yPosition; 		// x and y position of foreground image
+  	private int xPos, yPos; 		// x and y position of foreground image
   	private final int WIDTH = 1024; 			// window width (including actual window bars)
   	private final int HEIGHT = 704;			// window height (including actual window bars)
   											// frame dimensions: 512 x 768
@@ -41,7 +41,7 @@ public class GameComponent extends JComponent {
   		//Paint the background with its upper left corner at the upper left corner of the panel
     	g.drawImage(background, 0, 0, null); 
     	//Paint the image in the foreground where it should go
-    	g.drawImage(foreground, xPosition, yPosition, null);
+    	g.drawImage(foreground, xPos, yPos, null);
     	for (Wall a: walls) {
     		if (a instanceof Portal) {
     			Portal b = (Portal)a;
@@ -76,18 +76,28 @@ public class GameComponent extends JComponent {
 
   	//Updates the image's position
   	public void updateImage(int x, int y) {
-  		xPosition = x;
-  		yPosition = y;
+  		xPos = x;
+  		yPos = y;
+  		repaint();
+  	}
+  	
+  	public void updateImage() {
   		repaint();
   	}
   	
   	// pre: none
   	// post: returns Chell's position (x or y)
   	public int getChellX() {
-  		return xPosition;
+  		return xPos;
   	}
   	
   	public int getChellY() {
-  		return yPosition;
+  		return yPos;
+  	}
+  	
+  	public boolean contains(int x, int y) {
+  		if (x >= 0 && x < 1024 && y >= 0 && y < 704)
+  			return true;
+  		return false;
   	}
 }

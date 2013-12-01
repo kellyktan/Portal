@@ -8,6 +8,7 @@ public class Game {
 	private JPanel panel;
 	private GameComponent comp;
 	private Keyboard keyboard;
+	private Mouse mouse;
 	private long time;
 	private Boolean playing;
 	
@@ -37,8 +38,11 @@ public class Game {
 				comp = new GameComponent("Images/background.gif");
 				playing = false;
 				keyboard = new Keyboard(playing);
+				mouse = new Mouse(comp, keyboard);
+				keyboard.setMouse(mouse);
 				comp.setFocusable(true);
 				comp.addKeyListener(keyboard);
+				comp.addMouseListener(mouse);
 				
 				Level first = new Level("Levels/Level 1.txt", keyboard, comp);
 				panel.add(first.getComponent());
@@ -46,7 +50,7 @@ public class Game {
 				frame.pack();
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setVisible(true);
-				System.out.println(first.getComponent().getHeight());
+				mouse.setWalls(first.getWalls());
 				keyboard.setLevel(first);
 			} catch (IOException e) {
 				System.out.println(e.getMessage());

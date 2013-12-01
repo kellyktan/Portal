@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.util.*;
 
-public class Keyboard implements KeyListener {
+public class Keyboard extends KeyAdapter {
 	// private variables
 	private GameComponent comp;					// the panel Chell moves around in
 	private Mouse mouse;					   	// the mouse
@@ -14,8 +14,6 @@ public class Keyboard implements KeyListener {
 	private final double GRAVITY = 0.05;		// gravity constant
 	private final double FRICTION = 0.1;		// friction constant
 	private final int TERMINALVEL = 25;			// Chell's terminal velocity
-	private boolean dirPressed;					// whether or not the direction keys are pressed (1, 2, 3, 4)
-	private int direction;						// direction (1, 2, 3, 4)
 	private Boolean playing;					// whether or not game is complete
 	
 	// constructor constructs frame with walls, level number, and Chell's position (x,y) and velocity
@@ -140,22 +138,6 @@ public class Keyboard implements KeyListener {
 	    			comp.updateImage(xPos, yPos);
     			}
     			break;
-    		case KeyEvent.VK_1:	 										// 1 - up direction
-    			dirPressed = true;
-    			direction = 1;
-    			break;
-    		case KeyEvent.VK_2: 										// 2 - right direction
-    			dirPressed = true;
-    			direction = 2;
-    			break;
-    		case KeyEvent.VK_3:											// 3 - down direction
-    			dirPressed = true;
-    			direction = 3;
-    			break;
-    		case KeyEvent.VK_4:											// 4 - left direction
-    			dirPressed = true;
-    			direction = 4;
-    			break;
     		default:
     			//other key pressed: ignore
     			break;
@@ -166,16 +148,9 @@ public class Keyboard implements KeyListener {
     // post: resets direction key pressed to false
     public void keyReleased(KeyEvent e)
     {
-    	dirPressed = false;
     	System.out.println("key released");
     }
     
-    // pre: none
-    // post: does nothing (needed to be implemented)
-    public void keyTyped(KeyEvent e)
-    {
-    	System.out.println("key typed");
-    }
     // pre: walls is not null
     // post: returns whether or not certain potential position is valid
     public boolean isValid(int xPos, int yPos)
@@ -299,18 +274,6 @@ public class Keyboard implements KeyListener {
 			xVel = 0 - hold;
 		}
     }
-    // pre: none
-    // post: returns if direction key for portal is pressed
-    public boolean dirPressed()
-    {
-    	return dirPressed;
-    }
-    // pre: none
-    // post: returns which direction key for portal is pressed
-    public int getDirection()
-    {
-    	return direction;
-    }
     
     public void setInitPos(int x, int y) {
     	initialX = x;
@@ -322,11 +285,16 @@ public class Keyboard implements KeyListener {
     public void setLevel(Level level) {
     	comp = level.getComponent();
     	walls = level.getWalls();
+    	mouse.setWalls(walls);
     	initialX = level.getX();
     	initialY = level.getY();
     	xPos = initialX;
     	yPos = initialY;
     	playing = true;
     	spaceTime();
+    }
+    
+    public void setMouse(Mouse mouse) {
+    	this.mouse = mouse;
     }
 }
