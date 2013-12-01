@@ -95,9 +95,9 @@ public class GameComponent extends JComponent {
   		return yPos;
   	}
   	
-  	public boolean contains(int x, int y) {
+  	/*public boolean contains(int x, int y) {
   		if (x >= 0 && x < 1024 && y >= 0 && y < 704)
   			return true;
   		return false;
-  	}
+  	}*/
 }

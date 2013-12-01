@@ -1,4 +1,5 @@
 import javax.swing.*;
+
 import java.awt.event.*;
 import java.util.*;
 
@@ -22,37 +23,14 @@ public class Keyboard extends KeyAdapter {
     	xVel = 0;				// starts with 0 velocity
     	yVel = 0;
     	this.playing = playing;
+    	totalTime = 0;
     }
-
-    /*// pre: valid parameters (lvl is valid level number, wlls is not null, x and y are correct)
-    // post: resets the imagePanel and other components with new walls/positions
-    public void nextLevel(int lvl, ArrayList<Wall> wlls, int x, int y)
-    {
-    	frame.setVisible(false);
-    	// resets the walls
-    	level = lvl;
-    	walls = wlls;
-    	mouse.setWalls(wlls);
-    	imagePanel.setWalls(wlls);
-    	// resets Chell's position and velocity
-    	initialX = x;
-    	initialY = y;
-    	xPosition = x;
-    	yPosition = y;
-    	xVel = 0;
-    	yVel = 0;
-    	// updates the image with new level
-    	imagePanel.updateImage(xPosition, yPosition);
-    	JOptionPane.showMessageDialog(null, "Test Chamber " + level);
-    	frame.setVisible(true);
-    }*/
     
     // MOVING IN GENERAL
     // pre: none
     // post: moves Chell with time, implementing gravity and friction when appropriate
     public void spaceTime()
     {
-    	totalTime = 0;
     	long lastTime = System.currentTimeMillis();
     	while (playing)										// keeps going until game is complete
     	{
@@ -154,11 +132,13 @@ public class Keyboard extends KeyAdapter {
     // pre: walls is not null
     // post: returns whether or not certain potential position is valid
     public boolean isValid(int xPos, int yPos)
-    {
+    {	
+    	boolean answer = true;
 		if (walls.size() != 0)
 		{
-    		for (Wall a: walls)				// checks list of walls to see if there is a wall at position
+    		for (int i = 0; i < walls.size(); i++)				// checks list of walls to see if there is a wall at position
     		{
+    			Wall a = walls.get(i);
     			if (xPos + 54 > a.getX() && xPos + 10 < a.getX() + 32 &&
     				yPos + 58 > a.getY() && yPos + 6 < a.getY() + 32)
     			{
@@ -190,11 +170,11 @@ public class Keyboard extends KeyAdapter {
     						JOptionPane.showMessageDialog(null, "You win. You Monster.");
     					}*/
     				}
-    				return false;
+    				answer = false;
     			}
     		}
 		}
-    	return true;
+    	return answer;
     }
     
     // MOVING BETWEEN PORTALS
@@ -203,75 +183,75 @@ public class Keyboard extends KeyAdapter {
     public void throughPortal(Portal here)
     {
     	boolean blue = here.isBlue();
-    	int thisDirection = here.getDirection();
+    	int thisDir = here.getDirection();
     	Portal other = null;
     	for (Wall wall: walls)
     	{
     		if (wall instanceof Portal)
     		{
-    			Portal port = (Portal)wall;
-    			if (port.isBlue() != blue)
-    				other = port;
+    			Portal portal = (Portal)wall;
+    			if (portal.isBlue() != blue)
+    				other = portal;
     		}
     	}
     	if (other != null)
     	{
-			int direction = other.getDirection();
-			int othX = other.getX();
-			int othY = other.getY();
-			doDirections(thisDirection, direction, othX, othY);
+			int nextDir = other.getDirection();
+			int nextX = other.getX();
+			int nextY = other.getY();
+			doDirections(thisDir, nextDir, nextX, nextY);
     	}
     	comp.updateImage(xPos, yPos);	
     }
     // pre: none
     // post: updates position and velocity if valid portals
-    public void doDirections (int thisDirection, int nextDirection, int x, int y)
-    {
-		if (nextDirection == 1 && isValid(x, y - 25))
-		{
-			xPos = x;
-			yPos = y - 25;
-			doVelocity(thisDirection, nextDirection);
-		}
-		else if (nextDirection == 2 && isValid(x + 25, y))
-		{
-			xPos = x + 25;
-			yPos = y;
-			doVelocity(thisDirection, nextDirection);
-		}
-		else if (nextDirection == 3 && isValid(x, y + 25))
-		{
-			xPos = x;
-			yPos = y + 25;
-			doVelocity(thisDirection, nextDirection);
-		}
-		else if (nextDirection == 4 && isValid(x - 25, y))
-		{
-			xPos = x - 25;
-			yPos = y;
-			doVelocity(thisDirection, nextDirection);
-		}
+    public void doDirections (int thisDir, int nextDir, int x, int y){
+    	boolean valid = true;
+		if (nextDir == 1) {
+			if (isValid(x - 16, y - 32)) {xPos = x - 16; yPos = y - 32;} 
+			else if (isValid(x, y - 32)) {xPos = x; yPos = y - 32;} 
+			else if (isValid(x - 32, y - 32)) {xPos = x - 32; yPos = y - 32;} 
+			else {valid = false;}
+		} else if (nextDir == 2) {
+			if (isValid(x + 32, y - 16)) {xPos = x + 32; yPos = y - 16;} 
+			else if (isValid(x + 32, y)) {xPos = x + 32; yPos = y;} 
+			else if (isValid(x + 32, y - 32)) {xPos = x + 32; yPos = y - 32;} 
+			else {valid = false;}
+		} else if (nextDir == 3) {
+			if (isValid(x - 16, y + 32)) {xPos = x - 16; yPos = y + 32;} 
+			else if (isValid(x, y + 32)) {xPos = x; yPos = y + 32;} 
+			else if (isValid(x - 32, y + 32)) {xPos = x - 32; yPos = y + 32;} 
+			else {valid = false;}
+		} else if (nextDir == 4) {
+			if (isValid(x - 32, y - 16)) {xPos = x - 32; yPos = y - 16;} 
+			else if (isValid(x - 32, y)) {xPos = x - 32; yPos = y;} 
+			else if (isValid(x - 32, y - 32)) {xPos = x - 32; yPos = y - 32;} 
+			else {valid = false;}
+		} else
+			valid = false;
+		if (valid)
+			doVelocity(thisDir, nextDir);
     }
     // pre: none
     // post: updates velocity to be appropriate direction
-    public void doVelocity(int thisDirection, int nextDirection)
+    public void doVelocity(int thisDir, int nextDir)
     {
-		if (thisDirection == nextDirection)
+		if (thisDir == nextDir)
 		{
 			xVel = 0 - xVel;
 			yVel = 0 - yVel;
 		}
-		else if (thisDirection + 1 == nextDirection || thisDirection - 3 == nextDirection)
+		else if (thisDir + 1 == nextDir || thisDir - 3 == nextDir)
 		{
-			double hold = yVel;
+			double temp = yVel;
 			yVel = 0 - xVel;
-			xVel = hold;
+			xVel = temp;
 		}
-		else if (thisDirection - 1 == nextDirection || thisDirection + 3 == nextDirection)
+		else if (thisDir - 1 == nextDir || thisDir + 3 == nextDir)
 		{
-			double hold = yVel;
+			double temp = yVel;
 			yVel = xVel;
-			xVel = 0 - hold;
+			xVel = 0 - temp;
 		}
     }
     
@@ -296,5 +276,9 @@ public class Keyboard extends KeyAdapter {
     
     public void setMouse(Mouse mouse) {
     	this.mouse = mouse;
+    }
+    
+    public long getTime() {
+    	return totalTime;
     }
 }

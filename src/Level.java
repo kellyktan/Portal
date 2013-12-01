@@ -5,8 +5,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 public class Level {
-	private GameComponent main;						// the panel Chell moves around
-	private Keyboard keyboard;
+	private GameComponent main;					// the panel Chell moves around
+	private Keyboard keyboard;					// the keyboard listener
 	private ArrayList<Wall> walls;				// list of walls in the level
 	private int startX, startY;					// Chell's start coordinates
 
@@ -18,23 +18,29 @@ public class Level {
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
 			String s = br.readLine();
-			int count = 0;
+			int count = 0;				// keeps track of data type
+										// 0 = Chell's initial coords
+										// 1 = door position
+										// 2/3 = nonportalable/portalable wall
 			while (s != null)
 			{
 				s = s.trim().toLowerCase();
 				if (s.matches("\\d+,\\d+-\\d+,\\d+:\\d")) {
+					// certain area of wall (startX,startY,endX,endY:direction)
+					
+					// starting coordinate
 					int comma = s.indexOf(",");
 					int end = s.indexOf("-");
-					// starting coordinate
 					int x1 = Integer.parseInt(s.substring(0, comma));
 					int y1 = Integer.parseInt(s.substring(comma + 1, end));
+					// ending coordinate
 					s = s.substring(end + 1);
 					comma = s.indexOf(",");
-					// ending coordinate
 					int x2 = Integer.parseInt(s.substring(0, comma));
 					int y2 = Integer.parseInt(s.substring(comma + 1, s.length() - 2));
 					// direction
 					int dir = Integer.parseInt(s.substring(s.length() - 1));
+					
 					for (int x = x1; x < x2; x += 32) {
 						for (int y = y1; y < y2; y += 32) {
 							if (count == 2) // non portalable wall
