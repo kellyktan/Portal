@@ -13,6 +13,7 @@ public class Keyboard extends KeyAdapter {
 	private int initialX, initialY;				// the initial x and y positions
 	private int xPos, yPos;			// Chell's x and y position
 	private ArrayList<Wall> walls;				// list of walls
+	private int[][] grid;
 	private double xVel, yVel;					// Chell's x and y velocities
 	private final double GRAVITY = 0.05;		// gravity constant
 	private final double FRICTION = 0.1;		// friction constant
@@ -25,6 +26,7 @@ public class Keyboard extends KeyAdapter {
     	yVel = 0;
     	this.playing = playing;
     	totalTime = 0;
+    	grid = new int[32][22];
     }
     
     // MOVING IN GENERAL
@@ -111,69 +113,68 @@ public class Keyboard extends KeyAdapter {
     // post: returns whether or not certain potential position is valid
     public boolean isValid(int x, int y) {	
     	boolean answer = true;
-		if (walls.size() != 0) {
-    		for (int i = 0; i < walls.size(); i++) {
+    	int rx = (x + 54) / 32;		// right x
+    	int mx = (x + 32) / 32;		// middle x
+    	int lx = (x + 10) / 32;		// left x
+    	int ty = (y + 6) / 32;		// top y
+    	int my = (y + 32) / 32;		// middle y
+    	int by = (y + 58) / 32;		// bottom y
+    	int[] check = {grid[mx][ty], grid[rx][my], grid[mx][by], grid[lx][my]};
+  
+    	for (int i = 0; i < 4; i++) {
     			// Checks list of walls to see if there's a wall at that position
-    			Wall a = walls.get(i);
-    			if (x + 54 > a.getX() && x + 10 < a.getX() + 32 &&
-    				y + 58 > a.getY() && y + 6 < a.getY() + 32)
-    			{
-    				if (a instanceof Portal) {
-    					Portal b = (Portal)a;
-    					throughPortal(b);	// moves through portal
-    				} else if (a instanceof Spike) {
-    					// you died...
-    					JOptionPane.showMessageDialog(null, "You died");
-    					// reset to beginning of level
-    					nextLevel(levelNum);
-    				} else if (a instanceof Door) {
-    					// you completed this level
-    					if (levelNum < 2){
-    						levelNum++;
-    						nextLevel(levelNum);
-    					} else {
-    						playing = false;
-    						JOptionPane.showMessageDialog(null, "You win. You" +
-    							" Monster.", "Aperture Science", JOptionPane.PLAIN_MESSAGE);
-    					}
-    				}
-    				answer = false;
-    			}
+    		if (check[i] != -1) {
+    			Wall a = walls.get(check[i]);
+				if (a instanceof Portal) {
+					Portal b = (Portal)a;
+					return throughPortal(b);	// moves through portal
+				} else if (a instanceof Spike) {
+					// you died...
+					JOptionPane.showMessageDialog(null, "You died");
+					// reset to beginning of level
+					nextLevel(levelNum);
+				} else if (a instanceof Door) {
+					// you completed this level
+					if (levelNum < 2){
+						levelNum++;
+						nextLevel(levelNum);
+					} else {
+						playing = false;
+						JOptionPane.showMessageDialog(null, "You win. You" +
+							" Monster.", "Aperture Science", JOptionPane.PLAIN_MESSAGE);
+					}
+				}
+				answer = false;
     		}
-		}
+    	}
     	return answer;
     }
     
     // MOVING BETWEEN PORTALS
     // pre: none
     // post: finds other portal and transfers Chell there, preserving velocity
-    public void throughPortal(Portal here) {
+    public boolean throughPortal(Portal here) {
     	boolean blue = here.isBlue();
     	int thisDir = here.getDirection();
-    	Portal other = null;
-    	for (Wall wall: walls) {
-    		if (wall instanceof Portal) {
-    			Portal portal = (Portal)wall;
-    			if (portal.isBlue() != blue)
-    				other = portal;
-    		}
-    	}
-    	if (other != null) {
+    	int otherInd = mouse.getPortal(!blue);
+    	if (otherInd != -1) {
+	    	Portal other = (Portal) walls.get(otherInd);
 			int nextDir = other.getDirection();
 			int nextX = other.getX();
 			int nextY = other.getY();
 			doDirections(thisDir, nextDir, nextX, nextY);
-    	}
-    	comp.updateImage(xPos, yPos);	
+	    	comp.updateImage(xPos, yPos);
+	    	return true;
+	    } return false;
     }
     // pre: none
     // post: updates position and velocity if valid portals
     public void doDirections (int thisDir, int nextDir, int x, int y){
     	boolean valid = true;
 		if (nextDir == 1) {
-			if (isValid(x - 16, y - 32)) {xPos = x - 16; yPos = y - 32;} 
-			else if (isValid(x, y - 32)) {xPos = x; yPos = y - 32;} 
-			else if (isValid(x - 32, y - 32)) {xPos = x - 32; yPos = y - 32;} 
+			if (isValid(x - 16, y - 64)) {xPos = x - 16; yPos = y - 64;} 
+			else if (isValid(x, y - 64)) {xPos = x; yPos = y - 64;} 
+			else if (isValid(x - 32, y - 64)) {xPos = x - 32; yPos = y - 64;} 
 			else {valid = false;}
 		} else if (nextDir == 2) {
 			if (isValid(x + 32, y - 16)) {xPos = x + 32; yPos = y - 16;} 
@@ -186,9 +187,9 @@ public class Keyboard extends KeyAdapter {
 			else if (isValid(x - 32, y + 32)) {xPos = x - 32; yPos = y + 32;} 
 			else {valid = false;}
 		} else if (nextDir == 4) {
-			if (isValid(x - 32, y - 16)) {xPos = x - 32; yPos = y - 16;} 
-			else if (isValid(x - 32, y)) {xPos = x - 32; yPos = y;} 
-			else if (isValid(x - 32, y - 32)) {xPos = x - 32; yPos = y - 32;} 
+			if (isValid(x - 64, y - 16)) {xPos = x - 64; yPos = y - 16;} 
+			else if (isValid(x - 64, y)) {xPos = x - 64; yPos = y;} 
+			else if (isValid(x - 64, y - 32)) {xPos = x - 64; yPos = y - 32;} 
 			else {valid = false;}
 		} else
 			valid = false;
@@ -218,6 +219,7 @@ public class Keyboard extends KeyAdapter {
 	    	levelNum = num;
 	    	comp = level.getComponent();
 	    	walls = level.getWalls();
+	    	setGrid(walls);
 	    	mouse.setWalls(walls);
 	    	initialX = level.getX();
 	    	initialY = level.getY();
@@ -232,6 +234,7 @@ public class Keyboard extends KeyAdapter {
     	levelNum = num;
     	comp = level.getComponent();
     	walls = level.getWalls();
+    	setGrid(walls);
     	mouse.setWalls(walls);
     	initialX = level.getX();
     	initialY = level.getY();
@@ -248,5 +251,17 @@ public class Keyboard extends KeyAdapter {
     
     public long getTime() {
     	return totalTime;
+    }
+    
+    public void setGrid(ArrayList<Wall> wl) {
+		for (int x = 0; x < 32; x++) {
+			for (int y = 0; y < 22; y++) {
+				grid[x][y] = -1;
+			}
+		}
+		for (int i = 0; i < wl.size(); i++) {
+			Wall w = wl.get(i);
+			grid[w.getX()/32][w.getY()/32] = i;
+		}
     }
 }

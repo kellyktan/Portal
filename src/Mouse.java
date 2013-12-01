@@ -118,4 +118,11 @@ public class Mouse extends MouseAdapter
     		else {return y - slope / 10;}
     	}
     }
+    
+    public int getPortal(boolean blue) {
+    	if (blue)
+    		return bluPortal;
+    	else
+    		return orgPortal;
+    }
 }

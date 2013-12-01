@@ -32,18 +32,18 @@ public class Level {
 					// starting coordinate
 					int comma = s.indexOf(",");
 					int end = s.indexOf("-");
-					int x1 = Integer.parseInt(s.substring(0, comma));
-					int y1 = Integer.parseInt(s.substring(comma + 1, end));
+					int x1 = Integer.parseInt(s.substring(0, comma)) * 32;
+					int y1 = Integer.parseInt(s.substring(comma + 1, end)) * 32;
 					// ending coordinate
 					s = s.substring(end + 1);
 					comma = s.indexOf(",");
-					int x2 = Integer.parseInt(s.substring(0, comma));
-					int y2 = Integer.parseInt(s.substring(comma + 1, s.length() - 2));
+					int x2 = Integer.parseInt(s.substring(0, comma)) * 32;
+					int y2 = Integer.parseInt(s.substring(comma + 1, s.length() - 2)) * 32;
 					// direction
 					int dir = Integer.parseInt(s.substring(s.length() - 1));
 					
-					for (int x = x1; x < x2; x += 32) {
-						for (int y = y1; y < y2; y += 32) {
+					for (int x = x1; x <= x2; x += 32) {
+						for (int y = y1; y <= y2; y += 32) {
 							if (count == 2) // non portalable wall
 								walls.add(new Wall(x, y, false, dir));
 							else if (count == 3)// portalable wall
@@ -55,8 +55,8 @@ public class Level {
 					
 				} else if (s.matches("\\d+,\\d+:\\d")) {
 					int comma = s.indexOf(",");
-					int x = Integer.parseInt(s.substring(0,comma));
-					int y = Integer.parseInt(s.substring(comma + 1, s.length() - 2));
+					int x = Integer.parseInt(s.substring(0,comma)) * 32;
+					int y = Integer.parseInt(s.substring(comma + 1, s.length() - 2)) * 32;
 					int dir = Integer.parseInt(s.substring(s.length() - 1));
 					
 					if (count == 0) {
