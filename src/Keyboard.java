@@ -8,6 +8,7 @@ public class Keyboard extends KeyAdapter {
 	private GameComponent comp;					// the panel Chell moves around in
 	private Mouse mouse;					   	// the mouse
 	private long totalTime;							// keeps track of the time
+	private int levelNum;
 	private int initialX, initialY;				// the initial x and y positions
 	private int xPos, yPos;			// Chell's x and y position
 	private ArrayList<Wall> walls;				// list of walls
@@ -131,7 +132,7 @@ public class Keyboard extends KeyAdapter {
     
     // pre: walls is not null
     // post: returns whether or not certain potential position is valid
-    public boolean isValid(int xPos, int yPos)
+    public boolean isValid(int x, int y)
     {	
     	boolean answer = true;
 		if (walls.size() != 0)
@@ -139,8 +140,8 @@ public class Keyboard extends KeyAdapter {
     		for (int i = 0; i < walls.size(); i++)				// checks list of walls to see if there is a wall at position
     		{
     			Wall a = walls.get(i);
-    			if (xPos + 54 > a.getX() && xPos + 10 < a.getX() + 32 &&
-    				yPos + 58 > a.getY() && yPos + 6 < a.getY() + 32)
+    			if (x + 54 > a.getX() && x + 10 < a.getX() + 32 &&
+    				y + 58 > a.getY() && y + 6 < a.getY() + 32)
     			{
     				if (a instanceof Portal)
     				{
@@ -155,20 +156,18 @@ public class Keyboard extends KeyAdapter {
     					yPos = initialY;
     					xVel = 0;
     					yVel = 0;
+    					comp.updateImage(xPos, yPos);
     				}
     				else if (a instanceof Door) // you win
     				{
-    					/*if (level < 5)
+    					if (levelNum < 1)
     					{
-    						nextLevel(level + 1, allLevel.getWalls(level + 1), allLevel.getStartX(level + 1), 
-    							allLevel.getStartY(level + 1));
+    						System.out.println("who goes there");
     					}
     					else
     					{
-    						complete = true; // stops moveIt()
-    						frame.dispose(); // closes frame
-    						JOptionPane.showMessageDialog(null, "You win. You Monster.");
-    					}*/
+    						playing = false; // stops moveIt()
+    					}
     				}
     				answer = false;
     			}
@@ -255,14 +254,8 @@ public class Keyboard extends KeyAdapter {
 		}
     }
     
-    public void setInitPos(int x, int y) {
-    	initialX = x;
-    	initialY = y;
-    	xPos = x;
-    	yPos = y;
-    }
-    
-    public void setLevel(Level level) {
+    public void setLevel(Level level, int num) {
+    	levelNum = num;
     	comp = level.getComponent();
     	walls = level.getWalls();
     	mouse.setWalls(walls);

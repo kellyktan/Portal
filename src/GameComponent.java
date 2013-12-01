@@ -51,7 +51,8 @@ public class GameComponent extends JComponent {
     				g.drawImage(new ImageIcon("Images/orange.png").getImage(), a.getX(), a.getY(), null);
 	
     		} else if (a instanceof Spike) {
-    			g.drawImage(new ImageIcon("Images/spike.png").getImage(), a.getX(), a.getY(), null);
+    			int dir = a.getDirection();
+    			g.drawImage(new ImageIcon("Images/spike_" + dir + ".png").getImage(), a.getX(), a.getY(), null);
     		} else if (a instanceof Door) {
     			g.drawImage(new ImageIcon("Images/door.jpeg").getImage(), a.getX(), a.getY(), null);
     			g.drawImage(new ImageIcon("Images/door.jpeg").getImage(), a.getX(), a.getY() + 32, null);
@@ -94,10 +95,4 @@ public class GameComponent extends JComponent {
   	public int getChellY() {
   		return yPos;
   	}
-  	
-  	/*public boolean contains(int x, int y) {
-  		if (x >= 0 && x < 1024 && y >= 0 && y < 704)
-  			return true;
-  		return false;
-  	}*/
 }

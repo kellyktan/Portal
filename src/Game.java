@@ -51,7 +51,10 @@ public class Game {
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setVisible(true);
 				mouse.setWalls(first.getWalls());
-				keyboard.setLevel(first);
+				//keyboard.setInitPos(first.getX(), first.getY());
+				keyboard.setLevel(first, 1);
+				frame.dispose();
+				JOptionPane.showMessageDialog(null, "You win. You Monster.");
 			} catch (IOException e) {
 				System.out.println(e.getMessage());
 			}

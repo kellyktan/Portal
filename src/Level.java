@@ -22,6 +22,7 @@ public class Level {
 										// 0 = Chell's initial coords
 										// 1 = door position
 										// 2/3 = nonportalable/portalable wall
+										// 4 = spike
 			while (s != null)
 			{
 				s = s.trim().toLowerCase();
@@ -45,8 +46,10 @@ public class Level {
 						for (int y = y1; y < y2; y += 32) {
 							if (count == 2) // non portalable wall
 								walls.add(new Wall(x, y, false, dir));
-							else // portalable wall
+							else if (count == 3)// portalable wall
 								walls.add(new Wall(x, y, true, dir));
+							else
+								walls.add(new Spike(x, y, dir));
 						}
 					}
 					
@@ -61,16 +64,20 @@ public class Level {
 						startY = y;
 						count++;
 					} else if (count == 1) {
-						walls.add(new Door(x,y));
-						walls.add(new Door(x,y+32));
+						walls.add(new Door(x, y));
+						walls.add(new Door(x, y+32));
 						count++;
 					} else if (count == 2) {
-						walls.add(new Wall(x,y,false, dir));
+						walls.add(new Wall(x, y, false, dir));
+					} else if (count == 3){
+						walls.add(new Wall(x, y, true, dir));
 					} else {
-						walls.add(new Wall(x,y,true, dir));
+						walls.add(new Spike(x, y, dir));
 					}
 				} else if (s.equals("portalable")) {
 					count = 3;
+				} else if (s.equals("spike")) {
+					count = 4;
 				} else {
 					br.close();
 					throw new IOException("Expected start coordinate ('x,y')" +
