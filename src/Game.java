@@ -1,17 +1,17 @@
 import java.awt.BorderLayout;
 import java.io.IOException;
-
 import javax.swing.*;
 
 public class Game {
 	// private variables
 	private JFrame frame;
 	private JPanel panel;
+	private JTextArea status;
 	private GameComponent comp;
 	private Keyboard keyboard;
 	private Mouse mouse;
-	private long time;
-	private Boolean playing;
+	private Integer lives;
+	private final int TOTALLEVELS = 2;
 	
 	// constructor constructs list of levels and initializes menu
 	public Game() {
@@ -83,10 +83,13 @@ public class Game {
 			panel = new JPanel();
 			frame.add(panel);
 			panel.setLayout(new BorderLayout());
-			
+		
+			lives = 5;
+			status = new JTextArea("\n   Test Chamber 0" + num + "\n\n   " +
+				"Lives:  5\n\n   Time:  0:00.000", 7, 15);
+			status.setEditable(false);
 			comp = new GameComponent("Images/background.gif");
-			playing = false;
-			keyboard = new Keyboard(playing);
+			keyboard = new Keyboard(status, lives);
 			mouse = new Mouse(comp, keyboard);
 			keyboard.setMouse(mouse);
 			comp.setFocusable(true);
@@ -95,11 +98,13 @@ public class Game {
 			
 			Level start = new Level("Levels/Level " + num + ".txt", keyboard, comp);
 			panel.add(start.getComponent(), BorderLayout.WEST);
-			panel.add(new JButton());
+			panel.add(status);
 			frame.pack();
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setVisible(true);
 			keyboard.startLevel(start, num);
+			while (lives != 0 && keyboard.getLevel() <= TOTALLEVELS)
+				keyboard.nextLevel();
 			frame.dispose();
 		} catch (IOException e) {
 			System.out.println(e.getMessage());

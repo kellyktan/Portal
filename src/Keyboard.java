@@ -8,6 +8,7 @@ public class Keyboard extends KeyAdapter {
 	// private variables
 	private GameComponent comp;					// the panel Chell moves around in
 	private Mouse mouse;					   	// the mouse
+	private JTextArea status;
 	private long totalTime;						// keeps track of the time
 	private int levelNum;						// keeps track of level
 	private int initialX, initialY;				// the initial x and y positions
@@ -19,14 +20,15 @@ public class Keyboard extends KeyAdapter {
 	private final double FRICTION = 0.1;		// friction constant
 	private final int TERMINALVEL = 25;			// Chell's terminal velocity
 	private Boolean playing;					// whether or not currently playing
+	private Integer lives;						// keeps track of Chell's remaining lives
 	
 	// constructor constructs frame with walls, level number, and Chell's position (x,y) and velocity
-    public Keyboard(Boolean playing) {
-    	xVel = 0;				// starts with 0 velocity
-    	yVel = 0;
-    	this.playing = playing;
+    public Keyboard(JTextArea status, Integer lives) {
+    	playing = false;
+    	this.status = status;
     	totalTime = 0;
     	grid = new int[32][22];
+    	this.lives = lives;
     }
     
     // MOVING IN GENERAL
@@ -37,9 +39,10 @@ public class Keyboard extends KeyAdapter {
     	while (playing)	{
     		// keeps going until game is complete
     		long time = System.currentTimeMillis();
-    		if (time - 10 > lastTime) {
+     		if (time - 10 > lastTime) {
     			// increments every 10 milliseconds
-    			totalTime += time - lastTime;
+     			totalTime += time - lastTime;
+    			updateStatus(totalTime);
     			lastTime = time;
     			// resets 'previous' time
     			if (yVel + GRAVITY < TERMINALVEL)
@@ -122,7 +125,7 @@ public class Keyboard extends KeyAdapter {
     	int[] check = {grid[mx][ty], grid[rx][my], grid[mx][by], grid[lx][my]};
   
     	for (int i = 0; i < 4; i++) {
-    			// Checks list of walls to see if there's a wall at that position
+    		// Checks list of walls to see if there's a wall at that position
     		if (check[i] != -1) {
     			Wall a = walls.get(check[i]);
 				if (a instanceof Portal) {
@@ -130,19 +133,19 @@ public class Keyboard extends KeyAdapter {
 					return throughPortal(b);	// moves through portal
 				} else if (a instanceof Spike) {
 					// you died...
+					lives--;
+			    	status.replaceRange(lives.toString(), 32, 33);
+			    	playing = false;
 					JOptionPane.showMessageDialog(null, "You died");
-					// reset to beginning of level
-					nextLevel(levelNum);
+					if (lives == 0)
+						JOptionPane.showMessageDialog(null, "Game Over");		
 				} else if (a instanceof Door) {
 					// you completed this level
-					if (levelNum < 2){
-						levelNum++;
-						nextLevel(levelNum);
-					} else {
-						playing = false;
+					levelNum++;
+					playing = false;
+					if (levelNum == 3)
 						JOptionPane.showMessageDialog(null, "You win. You" +
 							" Monster.", "Aperture Science", JOptionPane.PLAIN_MESSAGE);
-					}
 				}
 				answer = false;
     		}
@@ -213,11 +216,10 @@ public class Keyboard extends KeyAdapter {
 		}
     }
     
-    public void nextLevel(int num) {
+    public void nextLevel() {
     	try {
-    		Level level = new Level("Levels/Level " + num + ".txt", this, comp);
-	    	levelNum = num;
-	    	comp = level.getComponent();
+    		Level level = new Level("Levels/Level " + levelNum + ".txt", this, comp);
+	    	status.replaceRange("" + levelNum, 18, 19);
 	    	walls = level.getWalls();
 	    	setGrid(walls);
 	    	mouse.setWalls(walls);
@@ -225,8 +227,12 @@ public class Keyboard extends KeyAdapter {
 	    	initialY = level.getY();
 	    	xPos = initialX;
 	    	yPos = initialY;
-	    	playing = true;
+	    	xVel = 0;
+	    	yVel = 0;
 	    	comp.updateImage(xPos,yPos);
+        	JOptionPane.showMessageDialog(null, "Test Chamber 0" + levelNum);
+        	playing = true;
+        	spaceTime();
     	} catch (IOException e) {System.out.println(e.getMessage());}
     }
     
@@ -240,8 +246,11 @@ public class Keyboard extends KeyAdapter {
     	initialY = level.getY();
     	xPos = initialX;
     	yPos = initialY;
-    	playing = true;
+    	xVel = 0;
+    	yVel = 0;
     	comp.updateImage(xPos,yPos);
+    	JOptionPane.showMessageDialog(null, "Test Chamber 0" + num);
+    	playing = true;
     	spaceTime();
     }
     
@@ -263,5 +272,25 @@ public class Keyboard extends KeyAdapter {
 			Wall w = wl.get(i);
 			grid[w.getX()/32][w.getY()/32] = i;
 		}
+    }
+    
+    public void updateStatus(long time) {
+    	double seconds = time / 1000.0;
+    	int minutes = (int) seconds / 60;
+    	seconds = Math.round((seconds % 60) * 1000) / 1000.0;
+    	/*if (seconds >= 60) {
+    		minutes++;
+    		seconds = seconds % 60;
+    	}*/
+    	String display = "";
+    	if (seconds >= 10) 
+    		display = minutes + ":" + seconds;
+    	else
+    		display = minutes + ":0" + seconds;
+    	status.replaceRange(display, 45, status.getText().length());
+    }
+    
+    public int getLevel() {
+    	return levelNum;
     }
 }
