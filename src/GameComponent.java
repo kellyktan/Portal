@@ -14,33 +14,22 @@ public class GameComponent extends JComponent {
   											// frame dimensions: 512 x 768
   	private ArrayList<Wall> walls;			// list of walls
 
-	//Constructs a new ImagePanel with the background image specified by the file path given
-  	public GameComponent(String img) {
-  		this(new ImageIcon(img).getImage());	
-  			//The easiest way to make images from file paths in Swing
-  	}
-
-	//Constructs a new ImagePanel with the background image given
   	public GameComponent(Image img) {
-    	background = img;
-    	Dimension size = new Dimension(WIDTH, HEIGHT);	
-    		//Get the size of the image
-    	//Thoroughly make the size of the panel equal to the size of the image
-    	//(Various layout managers will try to mess with the size of things to fit everything)
-    	setPreferredSize(size);
-    	setMinimumSize(size);
-    	setMaximumSize(size);
-    	setSize(size);
+		background = img;
+		Dimension size = new Dimension(WIDTH, HEIGHT);	
+		setPreferredSize(size);
+		setMinimumSize(size);
+		setMaximumSize(size);
+		setSize(size);
+	}
+
+	public GameComponent(String img) {
+  		this(new ImageIcon(img).getImage());	
   	}
 
-	//This is called whenever the computer decides to repaint the window
-	//It's a method in JPanel that I've overwritten to paint the background and foreground images
-	// draws different types of walls
-	// pre: walls is not null
+  	@Override
   	public void paintComponent(Graphics g) {
-  		//Paint the background with its upper left corner at the upper left corner of the panel
     	g.drawImage(background, 0, 0, null); 
-    	//Paint the image in the foreground where it should go
     	g.drawImage(foreground, xPos, yPos, null);
     	for (Wall a: walls) {
     		if (a instanceof Portal) {
@@ -65,30 +54,25 @@ public class GameComponent extends JComponent {
     	}
   	}
 
-  	// sets walls with list of walls
   	public void setWalls(ArrayList<Wall> walls) {
-  		this.walls = walls;
-  	}
-  	
-  	//Sets the foreground image to display
-  	public void setImage(String image) {
-  		foreground = new ImageIcon(image).getImage();
-  		repaint();
-  	}
+		this.walls = walls;
+	}
 
-  	//Updates the image's position
-  	public void updateImage(int x, int y) {
+	public void setImage(String image) {
+		foreground = new ImageIcon(image).getImage();
+		repaint();
+	}
+
+	public void updateImage() {
+		repaint();
+	}
+
+	public void updateImage(int x, int y) {
   		xPos = x;
   		yPos = y;
   		repaint();
   	}
   	
-  	public void updateImage() {
-  		repaint();
-  	}
-  	
-  	// pre: none
-  	// post: returns Chell's position (x or y)
   	public int getChellX() {
   		return xPos;
   	}

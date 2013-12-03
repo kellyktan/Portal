@@ -1,5 +1,4 @@
-public class Portal extends Wall
-{
+public class Portal extends Wall {
 	// private variables
 	private boolean blue; 		// two different colors, blue and orange
 	

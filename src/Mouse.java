@@ -1,12 +1,10 @@
-import javax.swing.*;
 import java.awt.event.*;
 import java.util.*;
-public class Mouse extends MouseAdapter
-{
+
+public class Mouse extends MouseAdapter {
 	// private variables
 	private GameComponent comp;				
 	private ArrayList<Wall> walls;
-	private Keyboard keyboard;
 	private int[][] grid;
 	private int bluPortal;
 	private int orgPortal;
@@ -14,7 +12,6 @@ public class Mouse extends MouseAdapter
 	// constructor constructs MouseUser with list of walls, imagePanel, and keyboard
 	public Mouse(GameComponent comp, Keyboard keyMove) {
 		this.comp = comp;
-		keyboard = keyMove;
 		grid = new int[32][22];
 		bluPortal = -1;
 		orgPortal = -1;
@@ -32,6 +29,7 @@ public class Mouse extends MouseAdapter
 	// pre: none
 	// post: places portal depending on which button clicked and if direction keys are pressed
 	//       (left = blue portal, right = orange portal)
+	@Override
 	public void mouseClicked(MouseEvent e)
     {
     	int mouseCode = e.getButton();
@@ -45,6 +43,12 @@ public class Mouse extends MouseAdapter
 	    	boolean right = x < mouseX;
 	    	boolean above = y < mouseY;
 	    	boolean smallInc = slope < 10;
+	    	
+	    	if (right)
+	    		comp.setImage("Images/chell_right.gif");
+	    	else
+	    		comp.setImage("Images/chell_left.gif");
+	    	
 	    	boolean hitWall = false;
 	    	while (comp.contains((int)Math.round(x),(int)Math.round(y)) && !hitWall) {
 	    		int gridX = (int) Math.round(x) / 32;
@@ -75,19 +79,12 @@ public class Mouse extends MouseAdapter
     	}
 
     }
-    // pre: none
-    // post: checks if clicked spot is valid, portalable wall to place portal
-    public boolean isValid(int x, int y, int wallX, int wallY){
-    	if (x >= wallX && x < wallX + 32 && y >= wallY + 32 && y < wallY + 32)
-			return true;
-    	return false;
-    }
     
-    public double slope(double x1, double y1, int x2, int y2) {
+    private double slope(double x1, double y1, int x2, int y2) {
     	return Math.abs((y2-y1) / (x2-x1));
     }
     
-    public void setGrid(ArrayList<Wall> wl) {
+    private void setGrid(ArrayList<Wall> wl) {
 		for (int x = 0; x < 32; x++) {
 			for (int y = 0; y < 22; y++) {
 				grid[x][y] = -1;
@@ -99,7 +96,7 @@ public class Mouse extends MouseAdapter
 		}
     }
     
-    public double incX(boolean small, boolean right, double x) {
+    private double incX(boolean small, boolean right, double x) {
     	if (small) {
     		if (right) {return x + 1;}
     		else {return x - 1;}
@@ -109,7 +106,7 @@ public class Mouse extends MouseAdapter
     	}
     }
     
-    public double incY(boolean small, boolean above, double slope, double y) {
+    private double incY(boolean small, boolean above, double slope, double y) {
     	if (small) {
     		if (above) {return y + slope;}
     		else {return y - slope;}

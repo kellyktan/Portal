@@ -1,80 +1,109 @@
 import javax.swing.*;
-
 import java.awt.event.*;
 import java.util.*;
 import java.io.*;
 
 public class Keyboard extends KeyAdapter {
 	// private variables
-	private GameComponent comp;					// the panel Chell moves around in
 	private Mouse mouse;					   	// the mouse
-	private JTextArea status;
+	private GameComponent comp;					// the panel Chell moves around in
+	private JTextArea status;					// the status of the game
+	private Integer lives;						// keeps track of Chell's remaining lives
 	private long totalTime;						// keeps track of the time
+	private Boolean playing;					// whether or not currently playing
+	private Boolean pause;						// whether or not currently paused
 	private int levelNum;						// keeps track of level
 	private int initialX, initialY;				// the initial x and y positions
 	private int xPos, yPos;						// Chell's x and y position
+	private double xVel, yVel;					// Chell's x and y velocities
 	private ArrayList<Wall> walls;				// list of walls
 	private int[][] grid;						// grid mapping wall indexes
-	private double xVel, yVel;					// Chell's x and y velocities
 	private final double GRAVITY = 0.05;		// gravity constant
 	private final double FRICTION = 0.1;		// friction constant
 	private final int TERMINALVEL = 25;			// Chell's terminal velocity
-	private Boolean playing;					// whether or not currently playing
-	private Integer lives;						// keeps track of Chell's remaining lives
 	
 	// constructor constructs frame with walls, level number, and Chell's position (x,y) and velocity
-    public Keyboard(JTextArea status, Integer lives) {
-    	playing = false;
+    public Keyboard(JTextArea status, int lives) {
     	this.status = status;
-    	totalTime = 0;
-    	grid = new int[32][22];
     	this.lives = lives;
+    	totalTime = 0;
+    	playing = false;
+    	pause = false;
+    	grid = new int[32][22];
     }
     
     // MOVING IN GENERAL
     // pre: none
     // post: moves Chell with time, implementing gravity and friction when appropriate
-    public void spaceTime() {
+    private void spaceTime() {
     	long lastTime = System.currentTimeMillis();
     	while (playing)	{
     		// keeps going until game is complete
-    		long time = System.currentTimeMillis();
-     		if (time - 10 > lastTime) {
-    			// increments every 10 milliseconds
-     			totalTime += time - lastTime;
-    			updateStatus(totalTime);
-    			lastTime = time;
-    			// resets 'previous' time
-    			if (yVel + GRAVITY < TERMINALVEL)
-    				// adds gravity constant to vertical velocity
-    				yVel += GRAVITY;
-    			if (!isValid(xPos, yPos + 25)) {
-    				// determines whether or not Chell is on a surface/has friction
-    				if (xVel > 0) {
-    					xVel -= FRICTION;
-    					if (xVel < 0)
-    						xVel = 0;
-    				} else if (xVel < 0) {
-    					xVel += FRICTION;
-    					if (xVel > 0)
-    						xVel = 0;
-    				}
-    			}
-    			if (isValid((int)(xPos + xVel), yPos))	// gives Chell inertia
-    				xPos += xVel;
-    			else
-    				xVel = 0;
-    			if (isValid(xPos, (int)(yPos + yVel)))
-    				yPos += yVel;
-    			else
-    				yVel = 0;
-    			comp.updateImage(xPos, yPos);
-    		}
+    		while (!pause) {
+    			comp.requestFocusInWindow();
+	    		long time = System.currentTimeMillis();
+	     		if (time - 10 > lastTime) {
+	    			// increments every 10 milliseconds
+	     			totalTime += time - lastTime;
+	     			String display = getTime(totalTime);
+	     	    	status.replaceRange(display, 45, status.getText().length());
+	    			lastTime = time;
+	    			// resets 'previous' time
+	    			if (yVel + GRAVITY <= TERMINALVEL)
+	    				// adds gravity constant to vertical velocity
+	    				yVel += GRAVITY;
+	    			else
+	    				yVel = TERMINALVEL;
+	    			if (!isValid(xPos, yPos + 25)) {
+	    				// determines whether or not Chell is on a surface/has friction
+	    				if (xVel > 0) {
+	    					xVel -= FRICTION;
+	    					if (xVel < 0)
+	    						xVel = 0;
+	    				} else if (xVel < 0) {
+	    					xVel += FRICTION;
+	    					if (xVel > 0)
+	    						xVel = 0;
+	    				}
+	    			}
+	    			if (isValid((int)(xPos + xVel), yPos))	// gives Chell inertia
+	    				xPos += xVel;
+	    			else {
+	    				int check = (int) xVel;
+	    				if (xVel >= 0) {
+	    					while (!isValid(xPos + check, yPos) && check > 0)
+	    						check--;
+	    				} else {
+	    					while (!isValid(xPos + check, yPos) && check < 0)
+	    						check++;
+	    				}
+	    				xVel = 0;
+	    				xPos += check;
+	    			}
+	    			if (isValid(xPos, (int)(yPos + yVel)))
+	    				yPos += yVel;
+	    			else {
+	    				int check = (int) yVel;
+	    				if (yVel >= 0) {
+	    					while (!isValid(xPos, yPos + check) && check > 0)
+	    						check--;
+	    				} else if (yVel < 0) {
+	    					while (!isValid(xPos, yPos + check) && check < 0)
+	    						check++;
+	    				}
+	    				yVel = 0;
+	    				yPos += check;
+	    			}
+	    			comp.updateImage(xPos, yPos);
+	    		}
+	    	}
+    		lastTime = System.currentTimeMillis();
     	}
     }
     // pre: none
     // post: moves with WADS, sets portal direction with 1234 and 
     //       sets direction key pressed to true
+    @Override
     public void keyPressed(KeyEvent e) {
     	int keyCode = e.getKeyCode();
     	switch(keyCode) {
@@ -114,14 +143,18 @@ public class Keyboard extends KeyAdapter {
     
     // pre: walls is not null
     // post: returns whether or not certain potential position is valid
-    public boolean isValid(int x, int y) {	
+    private boolean isValid(int x, int y) {	
     	boolean answer = true;
-    	int rx = (x + 54) / 32;		// right x
-    	int mx = (x + 32) / 32;		// middle x
     	int lx = (x + 10) / 32;		// left x
+    	int mx = (x + 32) / 32;		// middle x
+    	int rx = (x + 54) / 32;		// right x
     	int ty = (y + 6) / 32;		// top y
     	int my = (y + 32) / 32;		// middle y
     	int by = (y + 58) / 32;		// bottom y
+    	
+    	if (lx < 0 || rx >= 32 || ty < 0 || by >= 22)
+    		return false;
+
     	int[] check = {grid[mx][ty], grid[rx][my], grid[mx][by], grid[lx][my]};
   
     	for (int i = 0; i < 4; i++) {
@@ -135,17 +168,21 @@ public class Keyboard extends KeyAdapter {
 					// you died...
 					lives--;
 			    	status.replaceRange(lives.toString(), 32, 33);
-			    	playing = false;
+			    	pause = true;
 					JOptionPane.showMessageDialog(null, "You died");
 					if (lives == 0)
 						JOptionPane.showMessageDialog(null, "Game Over");		
+			    	end();
 				} else if (a instanceof Door) {
 					// you completed this level
 					levelNum++;
-					playing = false;
-					if (levelNum == 3)
+					end();
+					if (levelNum == 3) {
+						String time = getTime(totalTime);
 						JOptionPane.showMessageDialog(null, "You win. You" +
-							" Monster.", "Aperture Science", JOptionPane.PLAIN_MESSAGE);
+							" Monster.\n\nLives:  " + lives + "\n\nTime:  " + 
+							time, "Aperture Science", JOptionPane.PLAIN_MESSAGE);
+					}
 				}
 				answer = false;
     		}
@@ -156,7 +193,7 @@ public class Keyboard extends KeyAdapter {
     // MOVING BETWEEN PORTALS
     // pre: none
     // post: finds other portal and transfers Chell there, preserving velocity
-    public boolean throughPortal(Portal here) {
+    private boolean throughPortal(Portal here) {
     	boolean blue = here.isBlue();
     	int thisDir = here.getDirection();
     	int otherInd = mouse.getPortal(!blue);
@@ -172,7 +209,7 @@ public class Keyboard extends KeyAdapter {
     }
     // pre: none
     // post: updates position and velocity if valid portals
-    public void doDirections (int thisDir, int nextDir, int x, int y){
+    private void doDirections (int thisDir, int nextDir, int x, int y){
     	boolean valid = true;
 		if (nextDir == 1) {
 			if (isValid(x - 16, y - 64)) {xPos = x - 16; yPos = y - 64;} 
@@ -201,7 +238,7 @@ public class Keyboard extends KeyAdapter {
     }
     // pre: none
     // post: updates velocity to be appropriate direction
-    public void doVelocity(int thisDir, int nextDir) {
+    private void doVelocity(int thisDir, int nextDir) {
 		if (thisDir == nextDir) {
 			xVel = 0 - xVel;
 			yVel = 0 - yVel;
@@ -214,6 +251,28 @@ public class Keyboard extends KeyAdapter {
 			yVel = xVel;
 			xVel = 0 - temp;
 		}
+		if (xVel > 0)
+			comp.setImage("Images/chell_right.gif");
+		else if (xVel < 0)
+			comp.setImage("Images/chell_left.gif");
+    }
+    
+    public void startLevel(Level level, int num) {
+    	levelNum = num;
+    	comp = level.getComponent();
+    	walls = level.getWalls();
+    	setGrid(walls);
+    	mouse.setWalls(walls);
+    	initialX = level.getX();
+    	initialY = level.getY();
+    	xPos = initialX;
+    	yPos = initialY;
+    	xVel = 0;
+    	yVel = 0;
+    	comp.updateImage(xPos,yPos);
+    	JOptionPane.showMessageDialog(null, "Test Chamber 0" + num);
+    	start();
+    	spaceTime();
     }
     
     public void nextLevel() {
@@ -231,38 +290,20 @@ public class Keyboard extends KeyAdapter {
 	    	yVel = 0;
 	    	comp.updateImage(xPos,yPos);
         	JOptionPane.showMessageDialog(null, "Test Chamber 0" + levelNum);
-        	playing = true;
+        	start();
         	spaceTime();
     	} catch (IOException e) {System.out.println(e.getMessage());}
     }
     
-    public void startLevel(Level level, int num) {
-    	levelNum = num;
-    	comp = level.getComponent();
-    	walls = level.getWalls();
-    	setGrid(walls);
-    	mouse.setWalls(walls);
-    	initialX = level.getX();
-    	initialY = level.getY();
-    	xPos = initialX;
-    	yPos = initialY;
-    	xVel = 0;
-    	yVel = 0;
-    	comp.updateImage(xPos,yPos);
-    	JOptionPane.showMessageDialog(null, "Test Chamber 0" + num);
-    	playing = true;
-    	spaceTime();
+    public void setPause(boolean pause) {
+    	this.pause = pause;
     }
     
     public void setMouse(Mouse mouse) {
     	this.mouse = mouse;
     }
     
-    public long getTime() {
-    	return totalTime;
-    }
-    
-    public void setGrid(ArrayList<Wall> wl) {
+    private void setGrid(ArrayList<Wall> wl) {
 		for (int x = 0; x < 32; x++) {
 			for (int y = 0; y < 22; y++) {
 				grid[x][y] = -1;
@@ -274,23 +315,30 @@ public class Keyboard extends KeyAdapter {
 		}
     }
     
-    public void updateStatus(long time) {
+    private String getTime(long time) {
     	double seconds = time / 1000.0;
     	int minutes = (int) seconds / 60;
     	seconds = Math.round((seconds % 60) * 1000) / 1000.0;
-    	/*if (seconds >= 60) {
-    		minutes++;
-    		seconds = seconds % 60;
-    	}*/
-    	String display = "";
     	if (seconds >= 10) 
-    		display = minutes + ":" + seconds;
+    		return minutes + ":" + seconds;
     	else
-    		display = minutes + ":0" + seconds;
-    	status.replaceRange(display, 45, status.getText().length());
+    		return minutes + ":0" + seconds;
+    }
+    
+    public int getLives() {
+    	return lives;
     }
     
     public int getLevel() {
     	return levelNum;
+    }
+    
+    public void end() {
+    	pause = true;
+    	playing = false;
+    }
+    public void start() {
+    	pause = false;
+    	playing = true;
     }
 }

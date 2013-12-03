@@ -1,5 +1,6 @@
-import java.awt.BorderLayout;
-import java.io.IOException;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 import javax.swing.*;
 
 public class Game {
@@ -10,19 +11,10 @@ public class Game {
 	private GameComponent comp;
 	private Keyboard keyboard;
 	private Mouse mouse;
-	private Integer lives;
+	private final int LIVES = 5;
 	private final int TOTALLEVELS = 2;
 	
-	// constructor constructs list of levels and initializes menu
 	public Game() {
-		//allLevel = new AllLevels();
-		init();
-	}
-	
-	// pre: none
-	// post: intilizes menu with options to play or choose level
-	public void init()
-	{
 		introduction();
 		Object[] startOptions = {"Begin", "Select Test Chamber"}; 					// start options
 		String title = "Aperture Science Enrichment Center"; 				// title of window
@@ -34,22 +26,72 @@ public class Game {
 		else if (response == 1) 											// opens menu with different menu options
 			levelSelect();
 	}
-	// pre: none
-	// post: initilizes menu with different levels to select
-	public void levelSelect()
-	{
-		Object[] levels = {"Test Chamber 01", "Test Chamber 02", "Test Chamber 03", 
-			"Test Chamber 04", "Test Chamber 05"};
-		
+	
+	private void levelSelect() {
+		Object[] levels = new Object[TOTALLEVELS];
+		for (int i = 0; i < TOTALLEVELS; i++)
+			levels[i] = "Test Chamber 0" + (i + 1);
 		int response = JOptionPane.showOptionDialog(null, "Select Test Chamber", "Select Test Chamber", 
 			JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
-			levels, levels[0]);
-		
+			levels, levels[0]);	
 		init(response + 1);
-	}
+	}	
+	
+	private void init(int num) {
+		try {
+			frame = new JFrame("Aperture Laboratories");
+			panel = new JPanel();
+			frame.add(panel, BorderLayout.NORTH);
+			panel.setLayout(new BorderLayout());
 
-	public void introduction()
-	{
+			status = new JTextArea("\n   Test Chamber 0" + num + "     " +
+				"Lives:  " + LIVES + "     Time:  0:00.000", 3, 65);
+			status.setEditable(false);
+			comp = new GameComponent("Images/background.gif");
+			keyboard = new Keyboard(status, LIVES);
+			mouse = new Mouse(comp, keyboard);
+			keyboard.setMouse(mouse);
+			comp.setFocusable(true);
+			comp.addKeyListener(keyboard);
+			comp.addMouseListener(mouse);
+			
+	        final JButton instructions = new JButton("Instructions");
+	        instructions.addActionListener(new ActionListener() {
+	                public void actionPerformed(ActionEvent e) {
+	                	keyboard.setPause(true);
+	                    instructions();
+	                    keyboard.setPause(false);
+	                    comp.requestFocusInWindow();
+	                }
+	            });
+	        
+	        final JButton reset = new JButton("Reset");
+	        reset.addActionListener(new ActionListener() {
+	                public void actionPerformed(ActionEvent e) {
+	                	keyboard.end();
+	                }
+	            });
+	        
+			Level start = new Level("Levels/Level " + num + ".txt", keyboard, comp);
+			panel.add(start.getComponent(), BorderLayout.SOUTH);
+			frame.add(status, BorderLayout.WEST);
+			frame.add(reset);
+			frame.add(instructions, BorderLayout.EAST);
+			frame.pack();
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setVisible(true);
+			comp.requestFocusInWindow();
+			keyboard.startLevel(start, num);
+			while (keyboard.getLives() != 0 && keyboard.getLevel() <= TOTALLEVELS)
+				keyboard.nextLevel();
+			frame.dispose();
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}		
+	}	
+
+
+	private void introduction() {
 		JOptionPane.showMessageDialog(null, "\nHello and, again, welcome to the" + 
 			" Aperture Science computer-aided enrichment center.\nYour specimen" + 
 			" has been processed and we are now ready to begin the test proper" +
@@ -68,46 +110,18 @@ public class Game {
 			"Device in liquid, even partially\n  -  Most importantly, under no" +
 			" circumstances should you--", "Aperture Science Enrichment Center",
 			JOptionPane.PLAIN_MESSAGE);
-		JOptionPane.showMessageDialog(null, "\nINSTRUCTIONS:\n\nMake your way through" +
-			" each test chamber in order to reach the door and move on to the next" +
-			" chamber\n\nNAVIGATION:  W = move up, D = move right, S = move down," +
-			" A = move left\n\nPLACING PORTALS:  click either left (blue) or" +
-			" right (orange) mouse button in the desired shooting direction\n\n" +
-			"WARNING:  spikes will kill you if you touch them",
-			"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE);
+		instructions();
 	}
+
 	
-	public void init(int num) {
-		try {
-			frame = new JFrame("Aperture Laboratories");
-			panel = new JPanel();
-			frame.add(panel);
-			panel.setLayout(new BorderLayout());
-		
-			lives = 5;
-			status = new JTextArea("\n   Test Chamber 0" + num + "\n\n   " +
-				"Lives:  5\n\n   Time:  0:00.000", 7, 15);
-			status.setEditable(false);
-			comp = new GameComponent("Images/background.gif");
-			keyboard = new Keyboard(status, lives);
-			mouse = new Mouse(comp, keyboard);
-			keyboard.setMouse(mouse);
-			comp.setFocusable(true);
-			comp.addKeyListener(keyboard);
-			comp.addMouseListener(mouse);
-			
-			Level start = new Level("Levels/Level " + num + ".txt", keyboard, comp);
-			panel.add(start.getComponent(), BorderLayout.WEST);
-			panel.add(status);
-			frame.pack();
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setVisible(true);
-			keyboard.startLevel(start, num);
-			while (lives != 0 && keyboard.getLevel() <= TOTALLEVELS)
-				keyboard.nextLevel();
-			frame.dispose();
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
-		}		
+	private void instructions() {
+		JOptionPane.showMessageDialog(null, "\nINSTRUCTIONS:\n\nMake your way through" +
+				" each test chamber in order to reach the door and move on to the next" +
+				" chamber\n\nNAVIGATION:  W = move up, D = move right, S = move down," +
+				" A = move left\n\nPLACING PORTALS:  Click either left (blue) or" +
+				" right (orange) mouse button in the desired shooting direction\n" +
+				"     (portals can be placed on the grey, portalable walls)\n\n" +
+				"WARNING:  Spikes will kill you if you touch them",
+				"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE);		
 	}
 }

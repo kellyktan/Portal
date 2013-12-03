@@ -26,16 +26,19 @@ public class Wall {
 	public int getX() {
 		return x;
 	}
+	
 	// pre: none
 	// post: returns y position
 	public int getY() {
 		return y;
 	}
+	
 	// pre: none
 	// post: returns portalablity
 	public boolean isPortalable() {
 		return portalable;
 	}
+	
 	public int getDirection() {
 		return direction;
 	}
