@@ -50,7 +50,9 @@ public class Keyboard extends KeyAdapter {
 		xVel = 0;
 		yVel = 0;
 		comp.updateImage(xPos,yPos);
-		JOptionPane.showMessageDialog(null, "Test Chamber 0" + num);
+		JOptionPane.showMessageDialog(null, "Test Chamber 0" + num, 
+				"Aperture Science", JOptionPane.PLAIN_MESSAGE,
+				new ImageIcon("Images/aperture.png"));
 		start();
 		spaceTime();
 	}
@@ -58,7 +60,7 @@ public class Keyboard extends KeyAdapter {
 	public void nextLevel() {
 		try {
 			Level level = new Level("Levels/Level " + levelNum + ".txt", this, comp);
-	    	status.replaceRange("" + levelNum, 18, 19);
+	    	status.replaceRange("" + levelNum, 20, 21);
 	    	walls = level.getWalls();
 	    	setGrid(walls);
 	    	mouse.setWalls(walls);
@@ -69,7 +71,9 @@ public class Keyboard extends KeyAdapter {
 	    	xVel = 0;
 	    	yVel = 0;
 	    	comp.updateImage(xPos,yPos);
-	    	JOptionPane.showMessageDialog(null, "Test Chamber 0" + levelNum);
+	    	JOptionPane.showMessageDialog(null, "Test Chamber 0" + levelNum,
+	    			"Aperture Science", JOptionPane.PLAIN_MESSAGE,
+					new ImageIcon("Images/aperture.png"));
 	    	start();
 	    	spaceTime();
 		} catch (IOException e) {System.out.println(e.getMessage());}
@@ -132,7 +136,7 @@ public class Keyboard extends KeyAdapter {
 	    			// increments every 10 milliseconds
 	     			totalTime += time - lastTime;
 	     			String display = getTime(totalTime);
-	     	    	status.replaceRange(display, 45, status.getText().length());
+	     	    	status.replaceRange(display, 47, status.getText().length());
 	    			lastTime = time;
 	    			// resets 'previous' time
 	    			if (yVel + GRAVITY <= TERMINALVEL)
@@ -214,15 +218,20 @@ public class Keyboard extends KeyAdapter {
 					return throughPortal(b);	// moves through portal
 				} else if (a instanceof Spike) {
 					// you died...
+					comp.updateImage(x,y);
 					lives--;
-			    	status.replaceRange(lives.toString(), 32, 33);
+			    	status.replaceRange(lives.toString(), 34, 35);
 			    	pause = true;
 					try {
 						FileInputStream ending = new FileInputStream("Audio/Death.wav");
 						AudioPlayer.player.start(ending);
-						JOptionPane.showMessageDialog(null, "You died");
+						JOptionPane.showMessageDialog(null, "You died\nLives:  " + 
+								lives, "Aperture Science", JOptionPane.PLAIN_MESSAGE,
+								new ImageIcon("Images/GLaDOS.png"));
 					if (lives == 0)
-						JOptionPane.showMessageDialog(null, "Game Over");		
+						JOptionPane.showMessageDialog(null, "Game Over",
+								"Aperture Science", JOptionPane.PLAIN_MESSAGE,
+								new ImageIcon("Images/GLaDOS.png"));		
 						AudioPlayer.player.stop(ending);
 					} catch (IOException e) {
 						System.out.println("Error occurred: " + e.getMessage());
@@ -232,6 +241,7 @@ public class Keyboard extends KeyAdapter {
 				} else if (a instanceof Door) {
 					// you completed this level
 					xVel = 0;
+					yVel = 0;
 					pause = true;
 					if (levelNum == TOTALLEVELS) {
 						String time = getTime(totalTime);
@@ -240,7 +250,8 @@ public class Keyboard extends KeyAdapter {
 							AudioPlayer.player.start(ending);
 							JOptionPane.showMessageDialog(null, "You win.  You" +
 								" Monster.\n\nLives:  " + lives + "\n\nTime:  " + 
-								time, "Aperture Science", JOptionPane.PLAIN_MESSAGE);
+								time, "Aperture Science", JOptionPane.PLAIN_MESSAGE,
+								new ImageIcon("Images/GLaDOS.png"));
 							AudioPlayer.player.stop(ending);
 						} catch (IOException e) {
 							System.out.println("Error occurred: " + e.getMessage());

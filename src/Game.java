@@ -22,22 +22,21 @@ public class Game {
 		Object[] startOptions = {"Begin", "Select Test Chamber"}; 					// start options
 		String title = "Aperture Science Enrichment Center"; 				// title of window
 		int response = JOptionPane.showOptionDialog(null, "Menu", title, 
-			JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
-			startOptions, startOptions[0]);
+			JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, 
+			new ImageIcon("Images/aperture.png"), startOptions, startOptions[0]);
 		if (response == 0) 													// starts with level 1
 			init(1);
 		else if (response == 1) 											// opens menu with different menu options
 			levelSelect();
-
 	}
 	
 	private void levelSelect() {
 		Object[] levels = new Object[TOTALLEVELS];
 		for (int i = 0; i < TOTALLEVELS; i++)
 			levels[i] = "Test Chamber 0" + (i + 1);
-		int response = JOptionPane.showOptionDialog(null, "Select Test Chamber", "Select Test Chamber", 
-			JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
-			levels, levels[0]);	
+		int response = JOptionPane.showOptionDialog(null, "Select Test Chamber", 
+			"Select Test Chamber", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, 
+			new ImageIcon("Images/aperture.png"), levels, levels[0]);	
 		init(response + 1);
 	}	
 	
@@ -45,10 +44,10 @@ public class Game {
 		try {
 			frame = new JFrame("Aperture Laboratories");
 			panel = new JPanel();
-			frame.add(panel, BorderLayout.NORTH);
+			frame.add(panel, BorderLayout.SOUTH);
 			panel.setLayout(new BorderLayout());
 
-			status = new JTextArea("\n   Test Chamber 0" + num + "     " +
+			status = new JTextArea("\n     Test Chamber 0" + num + "     " +
 				"Lives:  " + LIVES + "     Time:  0:00.000", 3, 65);
 			status.setEditable(false);
 			comp = new GameComponent("Images/background.jpg");
@@ -99,7 +98,7 @@ public class Game {
 		try {
 			FileInputStream intro = new FileInputStream("Audio/Intro_1.wav");
 			AudioPlayer.player.start(intro);
-			JOptionPane.showMessageDialog(null, "\nHello and, again, welcome to the" + 
+			JOptionPane.showMessageDialog(null, "Hello and, again, welcome to the" + 
 				" Aperture Science computer-aided enrichment center.\nYour specimen" + 
 				" has been processed and we are now ready to begin the test proper" +
 				".\nBefore we start, however, keep in mind that although fun and " +
@@ -107,7 +106,8 @@ public class Game {
 				" serious injuries may occur.\nFor your own safety and the safety of" +
 				" others, please refrain from--\nPor favor bord—n de fallar.  Muchos " +
 				"gracias de fallar gracias.", "Aperture Science Enrichment Center" +
-				" welcomes Subject #1498", JOptionPane.PLAIN_MESSAGE);
+				" welcomes Subject #1498", JOptionPane.PLAIN_MESSAGE,
+				new ImageIcon("Images/GLaDOS.png"));
 			AudioPlayer.player.stop(intro);
 		} catch (IOException e) {
 			System.out.println("Error occurred: " + e.getMessage());
@@ -116,7 +116,7 @@ public class Game {
 		try {
 			FileInputStream intro = new FileInputStream("Audio/Intro_2.wav");
 			AudioPlayer.player.start(intro);
-			JOptionPane.showMessageDialog(null, "\nYou are now in possession of the" +
+			JOptionPane.showMessageDialog(null, "You are now in possession of the" +
 				" Aperture Science Handheld Portal Device.\nWith it, you can create" +
 				" your own portals.  These interdimensional gates have been\nproven" +
 				" to be completely safe.  The Device, however, has not:\n\n  -  Do not" +
@@ -124,7 +124,7 @@ public class Game {
 				" at the operational end of The Device\n  -  Do not submerge The " +
 				"Device in liquid, even partially\n  -  Most importantly, under no" +
 				" circumstances should you--", "Aperture Science Enrichment Center",
-				JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.PLAIN_MESSAGE, new ImageIcon("Images/GLaDOS.png"));
 			AudioPlayer.player.stop(intro);
 		} catch (IOException e) {
 			System.out.println("Error occurred: " + e.getMessage());
@@ -141,6 +141,7 @@ public class Game {
 				" right (orange) mouse button in the desired shooting direction\n" +
 				"     (portals can be placed on the grey, portalable walls)\n\n" +
 				"WARNING:  Spikes will kill you if you touch them",
-				"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE);		
+				"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE,
+				new ImageIcon("Images/aperture.png"));		
 	}
 }
