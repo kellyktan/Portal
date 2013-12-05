@@ -35,16 +35,15 @@ public class GameComponent extends JComponent {
     		if (a instanceof Portal) {
     			Portal b = (Portal)a;
     			if (b.isBlue())
-	    			g.drawImage(new ImageIcon("Images/blue.png").getImage(), a.getX(), a.getY(), null);
+    				g.drawImage(new ImageIcon("Images/blue.jpg").getImage(), a.getX(), a.getY(), null);
     			else
-    				g.drawImage(new ImageIcon("Images/orange.png").getImage(), a.getX(), a.getY(), null);
+    				g.drawImage(new ImageIcon("Images/orange.jpg").getImage(), a.getX(), a.getY(), null);
 	
     		} else if (a instanceof Spike) {
     			int dir = a.getDirection();
     			g.drawImage(new ImageIcon("Images/spike_" + dir + ".png").getImage(), a.getX(), a.getY(), null);
     		} else if (a instanceof Door) {
-    			g.drawImage(new ImageIcon("Images/door.jpeg").getImage(), a.getX(), a.getY(), null);
-    			g.drawImage(new ImageIcon("Images/door.jpeg").getImage(), a.getX(), a.getY() + 32, null);
+    			g.drawImage(new ImageIcon("Images/door.jpg").getImage(), a.getX(), a.getY(), null);
     		} else {
     			if (a.isPortalable())
 	    			g.drawImage(new ImageIcon("Images/grey.jpg").getImage(), a.getX(), a.getY(), null);

@@ -1,7 +1,10 @@
 import javax.swing.*;
+
 import java.awt.event.*;
 import java.util.*;
 import java.io.*;
+
+import sun.audio.*;
 
 public class Keyboard extends KeyAdapter {
 	// private variables
@@ -12,6 +15,7 @@ public class Keyboard extends KeyAdapter {
 	private long totalTime;						// keeps track of the time
 	private Boolean playing;					// whether or not currently playing
 	private Boolean pause;						// whether or not currently paused
+	private final int TOTALLEVELS;				// total number of levels
 	private int levelNum;						// keeps track of level
 	private int initialX, initialY;				// the initial x and y positions
 	private int xPos, yPos;						// Chell's x and y position
@@ -23,16 +27,98 @@ public class Keyboard extends KeyAdapter {
 	private final int TERMINALVEL = 25;			// Chell's terminal velocity
 	
 	// constructor constructs frame with walls, level number, and Chell's position (x,y) and velocity
-    public Keyboard(JTextArea status, int lives) {
+    public Keyboard(JTextArea status, int lives, int totalLevels) {
     	this.status = status;
     	this.lives = lives;
     	totalTime = 0;
     	playing = false;
     	pause = false;
+    	TOTALLEVELS = totalLevels;
     	grid = new int[32][22];
     }
     
-    // MOVING IN GENERAL
+    public void startLevel(Level level, int num) {
+		levelNum = num;
+		comp = level.getComponent();
+		walls = level.getWalls();
+		setGrid(walls);
+		mouse.setWalls(walls);
+		initialX = level.getX();
+		initialY = level.getY();
+		xPos = initialX;
+		yPos = initialY;
+		xVel = 0;
+		yVel = 0;
+		comp.updateImage(xPos,yPos);
+		JOptionPane.showMessageDialog(null, "Test Chamber 0" + num);
+		start();
+		spaceTime();
+	}
+
+	public void nextLevel() {
+		try {
+			Level level = new Level("Levels/Level " + levelNum + ".txt", this, comp);
+	    	status.replaceRange("" + levelNum, 18, 19);
+	    	walls = level.getWalls();
+	    	setGrid(walls);
+	    	mouse.setWalls(walls);
+	    	initialX = level.getX();
+	    	initialY = level.getY();
+	    	xPos = initialX;
+	    	yPos = initialY;
+	    	xVel = 0;
+	    	yVel = 0;
+	    	comp.updateImage(xPos,yPos);
+	    	JOptionPane.showMessageDialog(null, "Test Chamber 0" + levelNum);
+	    	start();
+	    	spaceTime();
+		} catch (IOException e) {System.out.println(e.getMessage());}
+	}
+
+	// pre: none
+	// post: moves with WADS, sets portal direction with 1234 and 
+	//       sets direction key pressed to true
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (!pause) {
+			int keyCode = e.getKeyCode();
+			switch(keyCode) {
+				case KeyEvent.VK_A:											// A - moves left
+		    		comp.setImage("Images/chell_left.gif");
+					if (isValid(xPos - 10, yPos)) {
+		    			xPos -= 10;
+		    			xVel -= 1;
+		    			comp.updateImage(xPos, yPos);
+					} break;
+				case KeyEvent.VK_W:											// W - jumps
+					if (!isValid(xPos, yPos + 25)) {
+		    			if (isValid(xPos, yPos - 10)) {
+			    			yPos -= 10;
+			    			yVel -= 2;
+			    			comp.updateImage(xPos, yPos);
+		    			}
+					} break;
+				case KeyEvent.VK_S:											//S - moves down
+					if (isValid(xPos, yPos + 10)) {
+		    			yPos += 10;
+		    			yVel += 1;
+		    			comp.updateImage(xPos, yPos);
+					} break;
+				case KeyEvent.VK_D:											// D - moves right
+		    		comp.setImage("Images/chell_right.gif");
+					if (isValid(xPos + 10, yPos)) {
+		    			xPos += 10;
+		    			xVel += 1;
+		    			comp.updateImage(xPos, yPos);
+					} break;
+				default:
+					//other key pressed: ignore
+					break;
+			}
+		}
+	}
+
+	// MOVING IN GENERAL
     // pre: none
     // post: moves Chell with time, implementing gravity and friction when appropriate
     private void spaceTime() {
@@ -100,46 +186,6 @@ public class Keyboard extends KeyAdapter {
     		lastTime = System.currentTimeMillis();
     	}
     }
-    // pre: none
-    // post: moves with WADS, sets portal direction with 1234 and 
-    //       sets direction key pressed to true
-    @Override
-    public void keyPressed(KeyEvent e) {
-    	int keyCode = e.getKeyCode();
-    	switch(keyCode) {
-    		case KeyEvent.VK_A:											// A - moves left
-	    		comp.setImage("Images/chell_left.gif");
-    			if (isValid(xPos - 10, yPos)) {
-	    			xPos -= 10;
-	    			xVel -= 1;
-	    			comp.updateImage(xPos, yPos);
-    			} break;
-    		case KeyEvent.VK_W:											// W - jumps
-    			if (!isValid(xPos, yPos + 25)) {
-	    			if (isValid(xPos, yPos - 10)) {
-		    			yPos -= 10;
-		    			yVel -= 2;
-		    			comp.updateImage(xPos, yPos);
-	    			}
-    			} break;
-    		case KeyEvent.VK_S:											//S - moves down
-    			if (isValid(xPos, yPos + 10)) {
-	    			yPos += 10;
-	    			yVel += 1;
-	    			comp.updateImage(xPos, yPos);
-    			} break;
-    		case KeyEvent.VK_D:											// D - moves right
-	    		comp.setImage("Images/chell_right.gif");
-    			if (isValid(xPos + 10, yPos)) {
-	    			xPos += 10;
-	    			xVel += 1;
-	    			comp.updateImage(xPos, yPos);
-    			} break;
-    		default:
-    			//other key pressed: ignore
-    			break;
-    	}
-    }
     
     // pre: walls is not null
     // post: returns whether or not certain potential position is valid
@@ -155,9 +201,11 @@ public class Keyboard extends KeyAdapter {
     	if (lx < 0 || rx >= 32 || ty < 0 || by >= 22)
     		return false;
 
-    	int[] check = {grid[mx][ty], grid[rx][my], grid[mx][by], grid[lx][my]};
+    	int[] check = {grid[lx][ty], grid[mx][ty], grid[rx][ty], 
+    				   grid[lx][my], grid[rx][my], 
+    				   grid[lx][by], grid[mx][by], grid[rx][by]};
   
-    	for (int i = 0; i < 4; i++) {
+    	for (int i = 0; i < check.length; i++) {
     		// Checks list of walls to see if there's a wall at that position
     		if (check[i] != -1) {
     			Wall a = walls.get(check[i]);
@@ -169,20 +217,38 @@ public class Keyboard extends KeyAdapter {
 					lives--;
 			    	status.replaceRange(lives.toString(), 32, 33);
 			    	pause = true;
-					JOptionPane.showMessageDialog(null, "You died");
+					try {
+						FileInputStream ending = new FileInputStream("Audio/Death.wav");
+						AudioPlayer.player.start(ending);
+						JOptionPane.showMessageDialog(null, "You died");
 					if (lives == 0)
 						JOptionPane.showMessageDialog(null, "Game Over");		
+						AudioPlayer.player.stop(ending);
+					} catch (IOException e) {
+						System.out.println("Error occurred: " + e.getMessage());
+					}
 			    	end();
+			    	return false;
 				} else if (a instanceof Door) {
 					// you completed this level
+					xVel = 0;
+					pause = true;
+					if (levelNum == TOTALLEVELS) {
+						String time = getTime(totalTime);
+						try {
+							FileInputStream ending = new FileInputStream("Audio/Win_Long.wav");
+							AudioPlayer.player.start(ending);
+							JOptionPane.showMessageDialog(null, "You win.  You" +
+								" Monster.\n\nLives:  " + lives + "\n\nTime:  " + 
+								time, "Aperture Science", JOptionPane.PLAIN_MESSAGE);
+							AudioPlayer.player.stop(ending);
+						} catch (IOException e) {
+							System.out.println("Error occurred: " + e.getMessage());
+						}
+					}
 					levelNum++;
 					end();
-					if (levelNum == 3) {
-						String time = getTime(totalTime);
-						JOptionPane.showMessageDialog(null, "You win. You" +
-							" Monster.\n\nLives:  " + lives + "\n\nTime:  " + 
-							time, "Aperture Science", JOptionPane.PLAIN_MESSAGE);
-					}
+					return false;
 				}
 				answer = false;
     		}
@@ -257,53 +323,25 @@ public class Keyboard extends KeyAdapter {
 			comp.setImage("Images/chell_left.gif");
     }
     
-    public void startLevel(Level level, int num) {
-    	levelNum = num;
-    	comp = level.getComponent();
-    	walls = level.getWalls();
-    	setGrid(walls);
-    	mouse.setWalls(walls);
-    	initialX = level.getX();
-    	initialY = level.getY();
-    	xPos = initialX;
-    	yPos = initialY;
-    	xVel = 0;
-    	yVel = 0;
-    	comp.updateImage(xPos,yPos);
-    	JOptionPane.showMessageDialog(null, "Test Chamber 0" + num);
-    	start();
-    	spaceTime();
-    }
-    
-    public void nextLevel() {
-    	try {
-    		Level level = new Level("Levels/Level " + levelNum + ".txt", this, comp);
-	    	status.replaceRange("" + levelNum, 18, 19);
-	    	walls = level.getWalls();
-	    	setGrid(walls);
-	    	mouse.setWalls(walls);
-	    	initialX = level.getX();
-	    	initialY = level.getY();
-	    	xPos = initialX;
-	    	yPos = initialY;
-	    	xVel = 0;
-	    	yVel = 0;
-	    	comp.updateImage(xPos,yPos);
-        	JOptionPane.showMessageDialog(null, "Test Chamber 0" + levelNum);
-        	start();
-        	spaceTime();
-    	} catch (IOException e) {System.out.println(e.getMessage());}
-    }
-    
-    public void setPause(boolean pause) {
-    	this.pause = pause;
-    }
-    
     public void setMouse(Mouse mouse) {
-    	this.mouse = mouse;
-    }
-    
-    private void setGrid(ArrayList<Wall> wl) {
+		this.mouse = mouse;
+	}
+
+	public int getLives() {
+		return lives;
+	}
+
+	private String getTime(long time) {
+		double seconds = time / 1000.0;
+		int minutes = (int) seconds / 60;
+		seconds = Math.round((seconds % 60) * 1000) / 1000.0;
+		if (seconds >= 10) 
+			return minutes + ":" + seconds;
+		else
+			return minutes + ":0" + seconds;
+	}
+
+	private void setGrid(ArrayList<Wall> wl) {
 		for (int x = 0; x < 32; x++) {
 			for (int y = 0; y < 22; y++) {
 				grid[x][y] = -1;
@@ -313,32 +351,23 @@ public class Keyboard extends KeyAdapter {
 			Wall w = wl.get(i);
 			grid[w.getX()/32][w.getY()/32] = i;
 		}
-    }
-    
-    private String getTime(long time) {
-    	double seconds = time / 1000.0;
-    	int minutes = (int) seconds / 60;
-    	seconds = Math.round((seconds % 60) * 1000) / 1000.0;
-    	if (seconds >= 10) 
-    		return minutes + ":" + seconds;
-    	else
-    		return minutes + ":0" + seconds;
-    }
-    
-    public int getLives() {
-    	return lives;
+	}
+
+	public void setPause(boolean pause) {
+    	this.pause = pause;
     }
     
     public int getLevel() {
     	return levelNum;
     }
     
-    public void end() {
+    public void start() {
+		pause = false;
+		playing = true;
+	}
+
+	public void end() {
     	pause = true;
     	playing = false;
-    }
-    public void start() {
-    	pause = false;
-    	playing = true;
     }
 }
