@@ -35,9 +35,9 @@ public class GameComponent extends JComponent {
     		if (a instanceof Portal) {
     			Portal b = (Portal)a;
     			if (b.isBlue())
-    				g.drawImage(new ImageIcon("Images/blue.jpg").getImage(), a.getX(), a.getY(), null);
+    				g.drawImage(new ImageIcon("Images/blue.gif").getImage(), a.getX(), a.getY(), null);
     			else
-    				g.drawImage(new ImageIcon("Images/orange.jpg").getImage(), a.getX(), a.getY(), null);
+    				g.drawImage(new ImageIcon("Images/orange.gif").getImage(), a.getX(), a.getY(), null);
 	
     		} else if (a instanceof Spike) {
     			int dir = a.getDirection();

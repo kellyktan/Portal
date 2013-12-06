@@ -138,7 +138,7 @@ public class Game {
 		JOptionPane.showMessageDialog(null, "\nINSTRUCTIONS:\n\nMake your way through" +
 				" each test chamber in order to reach the door and move on to the next" +
 				" chamber\n\nNAVIGATION:  W = move up, D = move right, S = move down," +
-				" A = move left\n\nPLACING PORTALS:  Click either left (blue) or" +
+				" A = move left\n\nPLACING PORTALS:  Click either the left (blue) or" +
 				" right (orange) mouse button in the desired shooting direction,\n" +
 				"     relative to Test Subject #1498.  (Portals can be placed on the " +
 				"grey, portalable walls)\n\n" +

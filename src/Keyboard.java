@@ -232,8 +232,8 @@ public class Keyboard extends KeyAdapter {
 						AudioPlayer.player.stop(death);
 					} catch (IOException e) {
 						System.out.println("Error occurred: " + e.getMessage());
-					}
-					if (lives == 0)
+					} 
+					if (lives == 0) {
 						try {
 							FileInputStream cake = new FileInputStream("Audio/Game_Over.wav");
 							AudioPlayer.player.start(cake);
@@ -241,9 +241,10 @@ public class Keyboard extends KeyAdapter {
 									"Aperture Science", JOptionPane.PLAIN_MESSAGE,
 									new ImageIcon("Images/GLaDOS.png"));		
 							AudioPlayer.player.stop(cake);
-							} catch (IOException e) {
-								System.out.println("Error occurred: " + e.getMessage());
-							}
+						} catch (IOException e) {
+							System.out.println("Error occurred: " + e.getMessage());
+						}
+					}
 			    	end();
 			    	return false;
 				} else if (a instanceof Door) {
@@ -296,29 +297,35 @@ public class Keyboard extends KeyAdapter {
     // post: updates position and velocity if valid portals
     private void doDirections (int thisDir, int nextDir, int x, int y){
     	boolean valid = true;
-		if (nextDir == 1) {
-			if (isValid(x - 16, y - 64)) {xPos = x - 16; yPos = y - 64;} 
-			else if (isValid(x, y - 64)) {xPos = x; yPos = y - 64;} 
-			else if (isValid(x - 32, y - 64)) {xPos = x - 32; yPos = y - 64;} 
-			else {valid = false;}
-		} else if (nextDir == 2) {
-			if (isValid(x + 32, y - 16)) {xPos = x + 32; yPos = y - 16;} 
-			else if (isValid(x + 32, y)) {xPos = x + 32; yPos = y;} 
-			else if (isValid(x + 32, y - 32)) {xPos = x + 32; yPos = y - 32;} 
-			else {valid = false;}
-		} else if (nextDir == 3) {
-			if (isValid(x - 16, y + 32)) {xPos = x - 16; yPos = y + 32;} 
-			else if (isValid(x, y + 32)) {xPos = x; yPos = y + 32;} 
-			else if (isValid(x - 32, y + 32)) {xPos = x - 32; yPos = y + 32;} 
-			else {valid = false;}
-		} else if (nextDir == 4) {
-			if (isValid(x - 64, y - 16)) {xPos = x - 64; yPos = y - 16;} 
-			else if (isValid(x - 64, y)) {xPos = x - 64; yPos = y;} 
-			else if (isValid(x - 64, y - 32)) {xPos = x - 64; yPos = y - 32;} 
-			else {valid = false;}
-		} else
-			valid = false;
-		if (valid)
+    	switch (nextDir) {
+    		case 1:
+				if (isValid(x - 16, y - 64)) {xPos = x - 16; yPos = y - 64;} 
+				else if (isValid(x, y - 64)) {xPos = x; yPos = y - 64;} 
+				else if (isValid(x - 32, y - 64)) {xPos = x - 32; yPos = y - 64;} 
+				else {valid = false;}
+				break;
+    		case 2:
+				if (isValid(x + 32, y - 16)) {xPos = x + 32; yPos = y - 16;} 
+				else if (isValid(x + 32, y)) {xPos = x + 32; yPos = y;} 
+				else if (isValid(x + 32, y - 32)) {xPos = x + 32; yPos = y - 32;} 
+				else {valid = false;}
+				break;
+    		case 3:
+				if (isValid(x - 16, y + 32)) {xPos = x - 16; yPos = y + 32;} 
+				else if (isValid(x, y + 32)) {xPos = x; yPos = y + 32;} 
+				else if (isValid(x - 32, y + 32)) {xPos = x - 32; yPos = y + 32;} 
+				else {valid = false;}
+				break;
+    		case 4:
+				if (isValid(x - 64, y - 16)) {xPos = x - 64; yPos = y - 16;} 
+				else if (isValid(x - 64, y)) {xPos = x - 64; yPos = y;} 
+				else if (isValid(x - 64, y - 32)) {xPos = x - 64; yPos = y - 32;} 
+				else {valid = false;}
+				break;
+    		default:
+    			valid = false;
+    			break;
+    	} if (valid)
 			doVelocity(thisDir, nextDir);
     }
     // pre: none
