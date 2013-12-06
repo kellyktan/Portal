@@ -15,7 +15,7 @@ public class Game {
 	private Keyboard keyboard;
 	private Mouse mouse;
 	private final int LIVES = 5;
-	private final int TOTALLEVELS = 6;
+	private final int TOTALLEVELS = 7;
 	
 	public Game() {
 		introduction();
