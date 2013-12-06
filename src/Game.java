@@ -34,10 +34,11 @@ public class Game {
 		Object[] levels = new Object[TOTALLEVELS];
 		for (int i = 0; i < TOTALLEVELS; i++)
 			levels[i] = "Test Chamber 0" + (i + 1);
-		int response = JOptionPane.showOptionDialog(null, "Select Test Chamber", 
-			"Select Test Chamber", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, 
-			new ImageIcon("Images/aperture.png"), levels, levels[0]);	
-		init(response + 1);
+		String response = (String) JOptionPane.showInputDialog(null, "Select Test Chamber", 
+			"Select Test Chamber", JOptionPane.PLAIN_MESSAGE, 
+			new ImageIcon("Images/aperture.png"), levels, levels[0]);
+		int respLevel = Integer.parseInt(response.substring(response.length() - 1));
+		init(respLevel);
 	}	
 	
 	private void init(int num) {
@@ -138,8 +139,9 @@ public class Game {
 				" each test chamber in order to reach the door and move on to the next" +
 				" chamber\n\nNAVIGATION:  W = move up, D = move right, S = move down," +
 				" A = move left\n\nPLACING PORTALS:  Click either left (blue) or" +
-				" right (orange) mouse button in the desired shooting direction\n" +
-				"     (portals can be placed on the grey, portalable walls)\n\n" +
+				" right (orange) mouse button in the desired shooting direction,\n" +
+				"     relative to Test Subject #1498.  (Portals can be placed on the " +
+				"grey, portalable walls)\n\n" +
 				"WARNING:  Spikes will kill you if you touch them",
 				"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE,
 				new ImageIcon("Images/aperture.png"));		

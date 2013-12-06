@@ -95,12 +95,10 @@ public class Keyboard extends KeyAdapter {
 		    			comp.updateImage(xPos, yPos);
 					} break;
 				case KeyEvent.VK_W:											// W - jumps
-					if (!isValid(xPos, yPos + 25)) {
-		    			if (isValid(xPos, yPos - 10)) {
-			    			yPos -= 10;
-			    			yVel -= 2;
-			    			comp.updateImage(xPos, yPos);
-		    			}
+					if (!isValid(xPos, yPos + 1) && isValid(xPos, yPos - 10)) {
+		    			yPos -= 10;
+		    			yVel -= 2;
+		    			comp.updateImage(xPos, yPos);
 					} break;
 				case KeyEvent.VK_S:											//S - moves down
 					if (isValid(xPos, yPos + 10)) {
@@ -144,7 +142,7 @@ public class Keyboard extends KeyAdapter {
 	    				yVel += GRAVITY;
 	    			else
 	    				yVel = TERMINALVEL;
-	    			if (!isValid(xPos, yPos + 25)) {
+	    			if (!isValid(xPos, yPos + 1)) {
 	    				// determines whether or not Chell is on a surface/has friction
 	    				if (xVel > 0) {
 	    					xVel -= FRICTION;
@@ -194,6 +192,9 @@ public class Keyboard extends KeyAdapter {
     // pre: walls is not null
     // post: returns whether or not certain potential position is valid
     private boolean isValid(int x, int y) {	
+    	if (pause)
+    		return false;
+    	
     	boolean answer = true;
     	int lx = (x + 10) / 32;		// left x
     	int mx = (x + 32) / 32;		// middle x
@@ -223,19 +224,26 @@ public class Keyboard extends KeyAdapter {
 			    	status.replaceRange(lives.toString(), 34, 35);
 			    	pause = true;
 					try {
-						FileInputStream ending = new FileInputStream("Audio/Death.wav");
-						AudioPlayer.player.start(ending);
+						FileInputStream death = new FileInputStream("Audio/Death.wav");
+						AudioPlayer.player.start(death);
 						JOptionPane.showMessageDialog(null, "You died\nLives:  " + 
 								lives, "Aperture Science", JOptionPane.PLAIN_MESSAGE,
 								new ImageIcon("Images/GLaDOS.png"));
-					if (lives == 0)
-						JOptionPane.showMessageDialog(null, "Game Over",
-								"Aperture Science", JOptionPane.PLAIN_MESSAGE,
-								new ImageIcon("Images/GLaDOS.png"));		
-						AudioPlayer.player.stop(ending);
+						AudioPlayer.player.stop(death);
 					} catch (IOException e) {
 						System.out.println("Error occurred: " + e.getMessage());
 					}
+					if (lives == 0)
+						try {
+							FileInputStream cake = new FileInputStream("Audio/Game_Over.wav");
+							AudioPlayer.player.start(cake);
+							JOptionPane.showMessageDialog(null, "Game Over",
+									"Aperture Science", JOptionPane.PLAIN_MESSAGE,
+									new ImageIcon("Images/GLaDOS.png"));		
+							AudioPlayer.player.stop(cake);
+							} catch (IOException e) {
+								System.out.println("Error occurred: " + e.getMessage());
+							}
 			    	end();
 			    	return false;
 				} else if (a instanceof Door) {
@@ -328,6 +336,8 @@ public class Keyboard extends KeyAdapter {
 			yVel = xVel;
 			xVel = 0 - temp;
 		}
+		if (nextDir == 1)
+			yVel += 1.1;
 		if (xVel > 0)
 			comp.setImage("Images/chell_right.gif");
 		else if (xVel < 0)

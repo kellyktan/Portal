@@ -60,8 +60,8 @@ public class Level {
 					int dir = Integer.parseInt(s.substring(s.length() - 1));
 					
 					if (count == 0) {
-						startX = x;
-						startY = y;
+						startX = x - 10;
+						startY = y + 5;
 						count++;
 					} else if (count == 1) {
 						walls.add(new Door(x, y));
