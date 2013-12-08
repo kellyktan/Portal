@@ -72,7 +72,6 @@ public class Game {
 	                	keyboard.setPause(true);		
 	                    instructions();
 	                    keyboard.setPause(false);
-	                    comp.requestFocusInWindow();
 	                }
 	            });
 	        
@@ -83,7 +82,7 @@ public class Game {
 	                }
 	            });
 	        
-			panel.add(start.getComponent(), BorderLayout.SOUTH);
+			panel.add(start.getComponent());
 			frame.add(status, BorderLayout.WEST);
 			frame.add(reset);
 			frame.add(instructions, BorderLayout.EAST);

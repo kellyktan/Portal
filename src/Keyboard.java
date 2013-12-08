@@ -203,6 +203,7 @@ public class Keyboard extends KeyAdapter {
 	    			comp.updateImage(xPos, yPos);
 	    		}
 	    	}
+    		System.out.print("");
     		lastTime = System.currentTimeMillis();
     	}
     }
@@ -382,6 +383,7 @@ public class Keyboard extends KeyAdapter {
 	    		if (music.available() == 0)
 	    			music = new AudioStream(new FileInputStream("Audio/background.wav"));
 	    		AudioPlayer.player.start(music);
+	    		comp.requestFocusInWindow();
 	    	}
 		} catch (IOException e) {
 			System.out.println("Error Occurred: " + e.getMessage());

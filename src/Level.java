@@ -75,7 +75,7 @@ public class Level {
 					count = 4;
 				} else {
 					br.close();
-					throw new IOException("Expected start coordinate ('x,y')" +
+					throw new IOException("Expected start coordinate ('x,y') " +
 						"or 'portalable' to indicate portalable walls");
 				}
 				s = br.readLine();
