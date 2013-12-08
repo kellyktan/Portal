@@ -4,6 +4,7 @@ import javax.swing.*;
 
 import java.util.*;
 
+@SuppressWarnings("serial")
 public class GameComponent extends JComponent {
 	//private variables
 	private Image background; 				// the background image
