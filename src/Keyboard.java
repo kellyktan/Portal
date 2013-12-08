@@ -203,7 +203,6 @@ public class Keyboard extends KeyAdapter {
 	    			comp.updateImage(xPos, yPos);
 	    		}
 	    	}
-	    	System.out.print("");
     		lastTime = System.currentTimeMillis();
     	}
     }
@@ -400,7 +399,7 @@ public class Keyboard extends KeyAdapter {
 	}
 
 	public void end() {
-    	setPause(true);
     	playing = false;
+    	setPause(true);
     }
 }
