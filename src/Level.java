@@ -1,16 +1,12 @@
 import java.io.*;
 import java.util.*;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-
 public class Level {
 	private GameComponent main;					// the panel Chell moves around
-	private Keyboard keyboard;					// the keyboard listener
 	private ArrayList<Wall> walls;				// list of walls in the level
 	private int startX, startY;					// Chell's start coordinates
 
-	public Level (String file, Keyboard keyboard, GameComponent comp) throws IOException {
+	public Level (String file, GameComponent comp) throws IOException {
 		walls = new ArrayList<Wall>();
 		if (file == null)
 			throw new IllegalArgumentException();

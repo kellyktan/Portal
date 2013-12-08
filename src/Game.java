@@ -7,6 +7,12 @@ import javax.swing.*;
 import sun.audio.*;
 
 public class Game {
+	
+	public static void main(String[] args) {
+		Game a = new Game();
+		a.play();
+	}
+
 	// private variables
 	private JFrame frame;
 	private JPanel panel;
@@ -17,7 +23,7 @@ public class Game {
 	private final int LIVES = 5;
 	private final int TOTALLEVELS = 7;
 	
-	public Game() {
+	public void play() {
 		introduction();
 		Object[] startOptions = {"Begin", "Select Test Chamber"}; 					// start options
 		String title = "Aperture Science Enrichment Center"; 				// title of window
@@ -27,7 +33,7 @@ public class Game {
 		if (response == 0) 													// starts with level 1
 			init(1);
 		else if (response == 1) 											// opens menu with different menu options
-			levelSelect();
+			levelSelect();		
 	}
 	
 	private void levelSelect() {
@@ -47,23 +53,23 @@ public class Game {
 			panel = new JPanel();
 			frame.add(panel, BorderLayout.SOUTH);
 			panel.setLayout(new BorderLayout());
-
+			
 			status = new JTextArea("\n     Test Chamber 0" + num + "     " +
 				"Lives:  " + LIVES + "     Time:  0:00.000", 3, 65);
 			status.setEditable(false);
 			comp = new GameComponent("Images/background.jpg");
-			keyboard = new Keyboard(status, LIVES, TOTALLEVELS);
+			keyboard = new Keyboard(status, LIVES);
 			mouse = new Mouse(comp, keyboard);
 			keyboard.setMouse(mouse);
 			comp.setFocusable(true);
 			comp.addKeyListener(keyboard);
 			comp.addMouseListener(mouse);
-			Level start = new Level("Levels/Level " + num + ".txt", keyboard, comp);
+			Level start = new Level("Levels/Level " + num + ".txt", comp);
 			
 	        final JButton instructions = new JButton("Instructions");
 	        instructions.addActionListener(new ActionListener() {
 	                public void actionPerformed(ActionEvent e) {
-	                	keyboard.setPause(true);
+	                	keyboard.setPause(true);		
 	                    instructions();
 	                    keyboard.setPause(false);
 	                    comp.requestFocusInWindow();
@@ -86,14 +92,32 @@ public class Game {
 			frame.setVisible(true);
 			comp.requestFocusInWindow();
 			keyboard.startLevel(start, num);
-			while (keyboard.getLives() != 0 && keyboard.getLevel() <= TOTALLEVELS)
+			while (keyboard.getLives() > 0 && keyboard.getLevel() <= TOTALLEVELS) {
 				keyboard.nextLevel();
+			}
 			frame.dispose();
+			if (keyboard.getLives() == 0) {
+					FileInputStream cake = new FileInputStream("Audio/Game_Over.wav");
+					AudioPlayer.player.start(cake);
+					JOptionPane.showMessageDialog(null, "Game Over",
+							"Aperture Science", JOptionPane.PLAIN_MESSAGE,
+							new ImageIcon("Images/GLaDOS.png"));		
+					AudioPlayer.player.stop(cake);
+			}
+			else if (keyboard.getLevel() == TOTALLEVELS + 1) {
+				String time = keyboard.getTime();
+					FileInputStream ending = new FileInputStream("Audio/Win.wav");
+					AudioPlayer.player.start(ending);
+					JOptionPane.showMessageDialog(null, "You win.  You" +
+						" Monster.\n\nLives:  " + keyboard.getLives() + "\n\nTime:  " + 
+						time, "Aperture Science", JOptionPane.PLAIN_MESSAGE,
+						new ImageIcon("Images/GLaDOS.png"));
+					AudioPlayer.player.stop(ending);
+			}
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
-		}		
+			System.out.println("Error Occurred: " + e.getMessage());
+		}
 	}	
-
 
 	private void introduction() {
 		try {
@@ -137,10 +161,10 @@ public class Game {
 	private void instructions() {
 		JOptionPane.showMessageDialog(null, "\nINSTRUCTIONS:\n\nMake your way through" +
 				" each test chamber in order to reach the door and move on to the next" +
-				" chamber\n\nNAVIGATION:  W = move up, D = move right, S = move down," +
-				" A = move left\n\nPLACING PORTALS:  Click either the left (blue) or" +
+				" chamber\n\nNAVIGATION:  W = jump, A = left, S = down, D = right" +
+				"\n\nPLACING PORTALS:  Click either the left (blue) or" +
 				" right (orange) mouse button in the desired shooting direction,\n" +
-				"     relative to Test Subject #1498.  (Portals can be placed on the " +
+				"     relative to Test Subject #1498  (Portals can be placed on the " +
 				"grey, portalable walls)\n\n" +
 				"WARNING:  Spikes will kill you if you touch them",
 				"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE,

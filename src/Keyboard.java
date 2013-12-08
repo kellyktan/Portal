@@ -11,11 +11,11 @@ public class Keyboard extends KeyAdapter {
 	private Mouse mouse;					   	// the mouse
 	private GameComponent comp;					// the panel Chell moves around in
 	private JTextArea status;					// the status of the game
+	private AudioStream music;					// the background music
 	private Integer lives;						// keeps track of Chell's remaining lives
 	private long totalTime;						// keeps track of the time
 	private Boolean playing;					// whether or not currently playing
 	private Boolean pause;						// whether or not currently paused
-	private final int TOTALLEVELS;				// total number of levels
 	private int levelNum;						// keeps track of level
 	private int initialX, initialY;				// the initial x and y positions
 	private int xPos, yPos;						// Chell's x and y position
@@ -24,17 +24,22 @@ public class Keyboard extends KeyAdapter {
 	private int[][] grid;						// grid mapping wall indexes
 	private final double GRAVITY = 0.05;		// gravity constant
 	private final double FRICTION = 0.1;		// friction constant
-	private final int TERMINALVEL = 25;			// Chell's terminal velocity
+	private final double TERMINALVELY = 25;		// Chell's vertical terminal velocity
+	private final double TERMINALVELX = 3;		// Chell's horizontal terminal velocity
 	
 	// constructor constructs frame with walls, level number, and Chell's position (x,y) and velocity
-    public Keyboard(JTextArea status, int lives, int totalLevels) {
+    public Keyboard(JTextArea status, int lives) {
     	this.status = status;
     	this.lives = lives;
     	totalTime = 0;
     	playing = false;
     	pause = false;
-    	TOTALLEVELS = totalLevels;
     	grid = new int[32][22];
+    	try {
+    		music = new AudioStream(new FileInputStream("Audio/background.wav"));
+    	} catch (IOException e) {
+    		System.out.println("Error Occurred: " + e.getMessage());
+    	}
     }
     
     public void startLevel(Level level, int num) {
@@ -54,12 +59,11 @@ public class Keyboard extends KeyAdapter {
 				"Aperture Science", JOptionPane.PLAIN_MESSAGE,
 				new ImageIcon("Images/aperture.png"));
 		start();
-		spaceTime();
 	}
 
 	public void nextLevel() {
 		try {
-			Level level = new Level("Levels/Level " + levelNum + ".txt", this, comp);
+			Level level = new Level("Levels/Level " + levelNum + ".txt", comp);
 	    	status.replaceRange("" + levelNum, 20, 21);
 	    	walls = level.getWalls();
 	    	setGrid(walls);
@@ -75,7 +79,6 @@ public class Keyboard extends KeyAdapter {
 	    			"Aperture Science", JOptionPane.PLAIN_MESSAGE,
 					new ImageIcon("Images/aperture.png"));
 	    	start();
-	    	spaceTime();
 		} catch (IOException e) {System.out.println(e.getMessage());}
 	}
 
@@ -87,30 +90,35 @@ public class Keyboard extends KeyAdapter {
 		if (!pause) {
 			int keyCode = e.getKeyCode();
 			switch(keyCode) {
-				case KeyEvent.VK_A:											// A - moves left
-		    		comp.setImage("Images/chell_left.gif");
-					if (isValid(xPos - 10, yPos)) {
-		    			xPos -= 10;
-		    			xVel -= 1;
-		    			comp.updateImage(xPos, yPos);
-					} break;
 				case KeyEvent.VK_W:											// W - jumps
 					if (!isValid(xPos, yPos + 1) && isValid(xPos, yPos - 10)) {
 		    			yPos -= 10;
 		    			yVel -= 2;
 		    			comp.updateImage(xPos, yPos);
 					} break;
+				case KeyEvent.VK_A:											// A - moves left
+		    		comp.setImage("Images/chell_left.gif");
+					if (isValid(xPos - 10, yPos)) {
+		    			xPos -= 10;
+		    			if (xVel - 1 >= 0 - TERMINALVELX)
+		    				xVel -= 0.5;
+		    			comp.updateImage(xPos, yPos);
+					} break;
 				case KeyEvent.VK_S:											//S - moves down
 					if (isValid(xPos, yPos + 10)) {
 		    			yPos += 10;
-		    			yVel += 1;
+		    			if (yVel + 1 <= TERMINALVELY)
+		    				yVel += 0.5;
+		    			else
+		    				yVel = TERMINALVELY;
 		    			comp.updateImage(xPos, yPos);
 					} break;
 				case KeyEvent.VK_D:											// D - moves right
 		    		comp.setImage("Images/chell_right.gif");
 					if (isValid(xPos + 10, yPos)) {
 		    			xPos += 10;
-		    			xVel += 1;
+		    			if (xVel + 1 <= TERMINALVELX)
+		    				xVel += 0.5;
 		    			comp.updateImage(xPos, yPos);
 					} break;
 				default:
@@ -129,20 +137,28 @@ public class Keyboard extends KeyAdapter {
     		// keeps going until game is complete
     		while (!pause) {
     			comp.requestFocusInWindow();
+    			try {
+	    			if (music.available() == 0) {
+	    				music = new AudioStream(new FileInputStream("Audio/background.wav"));
+	    				AudioPlayer.player.start(music);
+	    			}
+    			} catch (IOException e) {
+    				System.out.println("Error Occurred: " + e);
+    			}
 	    		long time = System.currentTimeMillis();
 	     		if (time - 10 > lastTime) {
 	    			// increments every 10 milliseconds
 	     			totalTime += time - lastTime;
-	     			String display = getTime(totalTime);
+	     			String display = getTime();
 	     	    	status.replaceRange(display, 47, status.getText().length());
 	    			lastTime = time;
 	    			// resets 'previous' time
-	    			if (yVel + GRAVITY <= TERMINALVEL)
+	    			if (yVel + GRAVITY <= TERMINALVELY)
 	    				// adds gravity constant to vertical velocity
 	    				yVel += GRAVITY;
 	    			else
-	    				yVel = TERMINALVEL;
-	    			if (!isValid(xPos, yPos + 1)) {
+	    				yVel = TERMINALVELY;
+	    			if (!pause && !isValid(xPos, yPos + 1)) {
 	    				// determines whether or not Chell is on a surface/has friction
 	    				if (xVel > 0) {
 	    					xVel -= FRICTION;
@@ -156,35 +172,38 @@ public class Keyboard extends KeyAdapter {
 	    			}
 	    			if (isValid((int)(xPos + xVel), yPos))	// gives Chell inertia
 	    				xPos += xVel;
-	    			else {
+	    			else if (!pause) {
 	    				int check = (int) xVel;
 	    				if (xVel >= 0) {
-	    					while (!isValid(xPos + check, yPos) && check > 0)
+	    					while (!pause && !isValid(xPos + check, yPos) && check > 0)
 	    						check--;
 	    				} else {
-	    					while (!isValid(xPos + check, yPos) && check < 0)
+	    					while (!pause && !isValid(xPos + check, yPos) && check < 0)
 	    						check++;
 	    				}
 	    				xVel = 0;
-	    				xPos += check;
+	    				if (!pause)
+	    					xPos += check;
 	    			}
 	    			if (isValid(xPos, (int)(yPos + yVel)))
 	    				yPos += yVel;
-	    			else {
+	    			else if (!pause) {
 	    				int check = (int) yVel;
 	    				if (yVel >= 0) {
-	    					while (!isValid(xPos, yPos + check) && check > 0)
+	    					while (!pause && !isValid(xPos, yPos + check) && check > 0)
 	    						check--;
 	    				} else if (yVel < 0) {
-	    					while (!isValid(xPos, yPos + check) && check < 0)
+	    					while (!pause && !isValid(xPos, yPos + check) && check < 0)
 	    						check++;
 	    				}
 	    				yVel = 0;
-	    				yPos += check;
+	    				if (!pause)
+	    					yPos += check;
 	    			}
 	    			comp.updateImage(xPos, yPos);
 	    		}
 	    	}
+	    	System.out.print("");
     		lastTime = System.currentTimeMillis();
     	}
     }
@@ -212,66 +231,40 @@ public class Keyboard extends KeyAdapter {
   
     	for (int i = 0; i < check.length; i++) {
     		// Checks list of walls to see if there's a wall at that position
-    		if (check[i] != -1) {
-    			Wall a = walls.get(check[i]);
-				if (a instanceof Portal) {
-					Portal b = (Portal)a;
-					return throughPortal(b);	// moves through portal
-				} else if (a instanceof Spike) {
-					// you died...
-					comp.updateImage(x,y);
-					lives--;
-			    	status.replaceRange(lives.toString(), 34, 35);
-			    	pause = true;
-					try {
-						FileInputStream death = new FileInputStream("Audio/Death.wav");
-						AudioPlayer.player.start(death);
-						JOptionPane.showMessageDialog(null, "You died\nLives:  " + 
-								lives, "Aperture Science", JOptionPane.PLAIN_MESSAGE,
-								new ImageIcon("Images/GLaDOS.png"));
-						AudioPlayer.player.stop(death);
-					} catch (IOException e) {
-						System.out.println("Error occurred: " + e.getMessage());
-					} 
-					if (lives == 0) {
+    		if (!pause) {
+	    		if (check[i] != -1) {
+	    			Wall a = walls.get(check[i]);
+					if (a instanceof Portal) {
+						Portal b = (Portal)a;
+						return throughPortal(b);	// moves through portal
+					} else if (a instanceof Spike) {
+						// you died...
+						comp.updateImage(x,y);
+						lives--;
+				    	status.replaceRange(lives.toString(), 34, 35);
+				    	end();
 						try {
-							FileInputStream cake = new FileInputStream("Audio/Game_Over.wav");
-							AudioPlayer.player.start(cake);
-							JOptionPane.showMessageDialog(null, "Game Over",
-									"Aperture Science", JOptionPane.PLAIN_MESSAGE,
-									new ImageIcon("Images/GLaDOS.png"));		
-							AudioPlayer.player.stop(cake);
+							FileInputStream death = new FileInputStream("Audio/Death.wav");
+							AudioPlayer.player.start(death);
+							JOptionPane.showMessageDialog(null, "You died\nLives:  " + 
+									lives, "Aperture Science", JOptionPane.PLAIN_MESSAGE,
+									new ImageIcon("Images/GLaDOS.png"));
+							AudioPlayer.player.stop(death);
 						} catch (IOException e) {
 							System.out.println("Error occurred: " + e.getMessage());
-						}
+						} 
+				    	return false;
+					} else if (a instanceof Door) {
+						// you completed this level
+						xVel = 0;
+						yVel = 0;
+						levelNum++;
+						end();
+						return false;
 					}
-			    	end();
-			    	return false;
-				} else if (a instanceof Door) {
-					// you completed this level
-					xVel = 0;
-					yVel = 0;
-					pause = true;
-					if (levelNum == TOTALLEVELS) {
-						String time = getTime(totalTime);
-						try {
-							FileInputStream ending = new FileInputStream("Audio/Win_Long.wav");
-							AudioPlayer.player.start(ending);
-							JOptionPane.showMessageDialog(null, "You win.  You" +
-								" Monster.\n\nLives:  " + lives + "\n\nTime:  " + 
-								time, "Aperture Science", JOptionPane.PLAIN_MESSAGE,
-								new ImageIcon("Images/GLaDOS.png"));
-							AudioPlayer.player.stop(ending);
-						} catch (IOException e) {
-							System.out.println("Error occurred: " + e.getMessage());
-						}
-					}
-					levelNum++;
-					end();
-					return false;
-				}
-				answer = false;
-    		}
+					answer = false;
+	    		}
+	    	}
     	}
     	return answer;
     }
@@ -344,7 +337,7 @@ public class Keyboard extends KeyAdapter {
 			xVel = 0 - temp;
 		}
 		if (nextDir == 1)
-			yVel += 1.1;
+			yVel += 1;
 		if (xVel > 0)
 			comp.setImage("Images/chell_right.gif");
 		else if (xVel < 0)
@@ -359,8 +352,8 @@ public class Keyboard extends KeyAdapter {
 		return lives;
 	}
 
-	private String getTime(long time) {
-		double seconds = time / 1000.0;
+	public String getTime() {
+		double seconds = totalTime / 1000.0;
 		int minutes = (int) seconds / 60;
 		seconds = Math.round((seconds % 60) * 1000) / 1000.0;
 		if (seconds >= 10) 
@@ -383,6 +376,17 @@ public class Keyboard extends KeyAdapter {
 
 	public void setPause(boolean pause) {
     	this.pause = pause;
+    	try {
+	    	if (pause == true) {
+    			AudioPlayer.player.stop(music);
+	    	} else {
+	    		if (music.available() == 0)
+	    			music = new AudioStream(new FileInputStream("Audio/background.wav"));
+	    		AudioPlayer.player.start(music);
+	    	}
+		} catch (IOException e) {
+			System.out.println("Error Occurred: " + e.getMessage());
+		}
     }
     
     public int getLevel() {
@@ -390,12 +394,13 @@ public class Keyboard extends KeyAdapter {
     }
     
     public void start() {
-		pause = false;
+		setPause(false);
 		playing = true;
+		spaceTime();
 	}
 
 	public void end() {
-    	pause = true;
+    	setPause(true);
     	playing = false;
     }
 }
