@@ -1,20 +1,17 @@
+// portal
 public class Portal extends Wall {
-	// private variables
+	
+	// private variable
 	private boolean blue; 		// two different colors, blue and orange
-	
-	// constructor constructs portal at x,y with certain color and direction
-	public Portal(int x, int y, int dir, boolean blu) {
-		super(x, y, false, dir);
-		blue = blu;
-	}
-	
+		
+	// creates portal with same specifications as the wall it is replacing
+	// and specified color
 	public Portal(Wall w, boolean blu) {
 		super (w.getX(), w.getY(), false, w.getDirection());
 		blue = blu;
 	}
 	
-	// pre: none
-	// post: returns whether portal is blue or not
+	// returns portal color
 	public boolean isBlue() {
 		return blue;
 	}

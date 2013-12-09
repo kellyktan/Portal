@@ -1,6 +1,8 @@
+// spike
 public class Spike extends Wall {
-	// constructor constructs spike at x,y
-	public Spike(int hereX, int hereY, int dir) {
-		super(hereX, hereY, false, dir);
+	
+	// creates spike at x,y with specified direction
+	public Spike(int x, int y, int dir) {
+		super(x, y, false, dir);
 	}
 }

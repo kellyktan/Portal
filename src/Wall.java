@@ -1,19 +1,22 @@
+// wall
 public class Wall {
+	
 	// private variables
 	private int x, y; 				// wall position
 	private boolean portalable; 	// whether or not portal can be placed on it
 	private int direction;			// direction portal can be made towards
-									// 1 = up, 2 = right, 3 = down, 4 = left, 0 = not portalable
+									// 1 = up, 2 = right, 3 = down, 4 = left, 
+									// 0 = not portalable
 	
-	// constructor constructs wall at x,y and sets portalability
-	// 0 < x < 725, 0 < y < 475
-	public Wall(int hereX, int hereY, boolean portal, int dir) {
-		x = hereX;
-		y = hereY;
+	// creates wall at x,y with specified portalability and direction
+	public Wall(int x, int y, boolean portal, int dir) {
+		this.x = x;
+		this.y = y;
 		portalable = portal;
 		direction = dir;
 	}
 	
+	// creates wall with specifications of portal it is replacing
 	public Wall(Portal p) {
 		x = p.getX();
 		y = p.getY();
@@ -21,24 +24,22 @@ public class Wall {
 		direction = p.getDirection();
 	}
 	
-	// pre: none
-	// post: returns x position
+	// returns x coordinate
 	public int getX() {
 		return x;
 	}
 	
-	// pre: none
-	// post: returns y position
+	// returns y coordinate
 	public int getY() {
 		return y;
 	}
 	
-	// pre: none
-	// post: returns portalablity
+	// returns portalability
 	public boolean isPortalable() {
 		return portalable;
 	}
 	
+	// returns direction
 	public int getDirection() {
 		return direction;
 	}

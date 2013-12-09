@@ -6,66 +6,75 @@ import javax.swing.*;
 
 import sun.audio.*;
 
+// contains main game logistics
 public class Game {
 	
+	// main method
 	public static void main(String[] args) {
 		Game a = new Game();
 		a.play();
 	}
 
 	// private variables
-	private JFrame frame;
-	private JPanel panel;
-	private JTextArea status;
-	private GameComponent comp;
-	private Keyboard keyboard;
-	private Mouse mouse;
-	private final int LIVES = 5;
-	private final int TOTALLEVELS = 7;
+	private JFrame frame;				 // the frame the main game exists within
+	private JPanel panel;				 // the panel the game exists within
+	private JTextArea status;			 // the status of the game: test chamber #,
+										 // lives, time
+	private GameComponent comp;			 // the game component within the panel
+	private Keyboard keyboard;			 // the keyboard listener
+	private Mouse mouse;				 // the mouse listener
+	private final int LIVES = 5;		 // the # of lives you start with
+	private final int TOTALLEVELS = 7;	 // the total # of levels
 	
+	// starts playing the game
 	public void play() {
-		introduction();
-		Object[] startOptions = {"Begin", "Select Test Chamber"}; 					// start options
-		String title = "Aperture Science Enrichment Center"; 				// title of window
-		int response = JOptionPane.showOptionDialog(null, "Menu", title, 
-			JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, 
-			new ImageIcon("Images/aperture.png"), startOptions, startOptions[0]);
-		if (response == 0) 													// starts with level 1
+		introduction();		// introduces the game and shows instructions
+		Object[] startOptions = {"Begin", "Select Test Chamber"};	// menu options
+		// shows menu options, default is 'begin'
+		int response = JOptionPane.showOptionDialog(null, "Menu", 
+			"Aperture Science Enrichment Center", JOptionPane.DEFAULT_OPTION, 
+			JOptionPane.PLAIN_MESSAGE, new ImageIcon("Images/aperture.png"), 
+			startOptions, startOptions[0]);
+		if (response == 0)			// if 'begin' is selected starts with level 1
 			init(1);
-		else if (response == 1) 											// opens menu with different menu options
+		else if (response == 1)		// opens menu with different menu options
 			levelSelect();		
 	}
 	
+	// menu for selecting a level
 	private void levelSelect() {
-		Object[] levels = new Object[TOTALLEVELS];
+		Object[] levels = new Object[TOTALLEVELS]; // creates array with each level
 		for (int i = 0; i < TOTALLEVELS; i++)
 			levels[i] = "Test Chamber 0" + (i + 1);
+		// shows option for each level
 		String response = (String) JOptionPane.showInputDialog(null, "Select Test Chamber", 
 			"Select Test Chamber", JOptionPane.PLAIN_MESSAGE, 
 			new ImageIcon("Images/aperture.png"), levels, levels[0]);
+		// gets selected level number from selected string
 		int respLevel = Integer.parseInt(response.substring(response.length() - 1));
-		init(respLevel);
+		init(respLevel);	// initializes selected level
 	}	
 	
+	// initializes the game, starting at level 'num'
 	private void init(int num) {
 		try {
-			frame = new JFrame("Aperture Laboratories");
-			panel = new JPanel();
-			frame.add(panel, BorderLayout.SOUTH);
-			panel.setLayout(new BorderLayout());
-			
+			frame = new JFrame("Aperture Laboratories");	// creates frame
+			panel = new JPanel();							// creates panel
+			frame.add(panel, BorderLayout.SOUTH);			// adds panel to frame
+			panel.setLayout(new BorderLayout());			
+			// the status text
 			status = new JTextArea("\n     Test Chamber 0" + num + "     " +
 				"Lives:  " + LIVES + "     Time:  0:00.000", 3, 65);
-			status.setEditable(false);
-			comp = new GameComponent("Images/background.jpg");
-			keyboard = new Keyboard(status, LIVES);
-			mouse = new Mouse(comp, keyboard);
+			status.setEditable(false);		// prevents user from editing status text
+			comp = new GameComponent("Images/background.jpg");	// creates game component
+			keyboard = new Keyboard(status, LIVES);		// creates keyboard
+			mouse = new Mouse(comp, keyboard);			// creates mouse
 			keyboard.setMouse(mouse);
 			comp.setFocusable(true);
 			comp.addKeyListener(keyboard);
 			comp.addMouseListener(mouse);
 			Level start = new Level("Levels/Level " + num + ".txt", comp);
-			
+			// button for showing instructions/pausing game
 	        final JButton instructions = new JButton("Instructions");
 	        instructions.addActionListener(new ActionListener() {
 	                public void actionPerformed(ActionEvent e) {
@@ -74,14 +83,14 @@ public class Game {
 	                    keyboard.setPause(false);
 	                }
 	            });
-	        
+	        // button for reseting level
 	        final JButton reset = new JButton("Reset");
 	        reset.addActionListener(new ActionListener() {
 	                public void actionPerformed(ActionEvent e) {
 	                	keyboard.end();
 	                }
 	            });
-	        
+	        // adds various components to the frame and panel
 			panel.add(start.getComponent());
 			frame.add(status, BorderLayout.WEST);
 			frame.add(reset);
@@ -90,11 +99,14 @@ public class Game {
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setVisible(true);
 			comp.requestFocusInWindow();
+			// starts appropriate level
 			keyboard.startLevel(start, num);
+			// proceeds to appropriate level
 			while (keyboard.getLives() > 0 && keyboard.getLevel() <= TOTALLEVELS) {
 				keyboard.nextLevel();
 			}
 			frame.dispose();
+			// shows appropriate game over frame
 			if (keyboard.getLives() == 0) {
 					FileInputStream cake = new FileInputStream("Audio/Game_Over.wav");
 					AudioPlayer.player.start(cake);
@@ -118,6 +130,7 @@ public class Game {
 		}
 	}	
 
+	// shows introduction
 	private void introduction() {
 		try {
 			FileInputStream intro = new FileInputStream("Audio/Intro_1.wav");
@@ -155,17 +168,17 @@ public class Game {
 		}
 		instructions();
 	}
-
 	
+	// shows instructions
 	private void instructions() {
 		JOptionPane.showMessageDialog(null, "\nINSTRUCTIONS:\n\nMake your way through" +
 				" each test chamber in order to reach the door and move on to the next" +
 				" chamber\n\nNAVIGATION:  W = jump, A = left, S = down, D = right" +
-				"\n\nPLACING PORTALS:  Click either the left (blue) or" +
-				" right (orange) mouse button in the desired shooting direction,\n" +
-				"     relative to Test Subject #1498  (Portals can be placed on the " +
-				"grey, portalable walls)\n\n" +
-				"WARNING:  Spikes will kill you if you touch them",
+				"\n\nPLACING PORTALS:  Click with either the left (blue) or " +
+				"right (orange) mouse button in the desired shooting\n     direction," +
+				" relative to Test Subject #1498  (Portals can be placed on the " +
+				"grey, portalable walls)\n\nHINT:  Momentum is conserved through portals" +
+				"\n\nWARNING:  Spikes will kill you if you touch them",
 				"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE,
 				new ImageIcon("Images/aperture.png"));		
 	}

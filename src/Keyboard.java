@@ -6,18 +6,20 @@ import java.io.*;
 
 import sun.audio.*;
 
+// keyboard manages physics properties (gravity, terminal velocity, etc.) and moves Chell
 public class Keyboard extends KeyAdapter {
+	
 	// private variables
 	private Mouse mouse;					   	// the mouse
-	private GameComponent comp;					// the panel Chell moves around in
+	private GameComponent comp;					// the component Chell moves around in
 	private JTextArea status;					// the status of the game
 	private AudioStream music;					// the background music
 	private Integer lives;						// keeps track of Chell's remaining lives
 	private long totalTime;						// keeps track of the time
 	private Boolean playing;					// whether or not currently playing
 	private Boolean pause;						// whether or not currently paused
-	private int levelNum;						// keeps track of level
-	private int initialX, initialY;				// the initial x and y positions
+	private int levelNum;						// keeps track of level #
+	private int initialX, initialY;				// Chell's initial x and y positions
 	private int xPos, yPos;						// Chell's x and y position
 	private double xVel, yVel;					// Chell's x and y velocities
 	private ArrayList<Wall> walls;				// list of walls
@@ -27,14 +29,15 @@ public class Keyboard extends KeyAdapter {
 	private final double TERMINALVELY = 25;		// Chell's vertical terminal velocity
 	private final double TERMINALVELX = 3;		// Chell's horizontal terminal velocity
 	
-	// constructor constructs frame with walls, level number, and Chell's position (x,y) and velocity
+	// creates keyboard listener
     public Keyboard(JTextArea status, int lives) {
     	this.status = status;
-    	this.lives = lives;
+    	this.lives = lives;			// initial lives
     	totalTime = 0;
-    	playing = false;
-    	pause = false;
-    	grid = new int[32][22];
+    	playing = false;			// not playing when created
+    	pause = false;				// paused when created
+    	grid = new int[32][22];		// creates array for wall indexes
+    	// sets background music
     	try {
     		music = new AudioStream(new FileInputStream("Audio/background.wav"));
     	} catch (IOException e) {
@@ -42,12 +45,14 @@ public class Keyboard extends KeyAdapter {
     	}
     }
     
+    // initializes starting level
     public void startLevel(Level level, int num) {
 		levelNum = num;
 		comp = level.getComponent();
-		walls = level.getWalls();
-		setGrid(walls);
-		mouse.setWalls(walls);
+		walls = level.getWalls();		// sets the list of walls appropriately
+		setGrid(walls);					// fills grid appropriately
+		mouse.setWalls(walls);			// passes on the wall list to the mouse
+		// Chell's initial x and y position for this level
 		initialX = level.getX();
 		initialY = level.getY();
 		xPos = initialX;
@@ -61,13 +66,16 @@ public class Keyboard extends KeyAdapter {
 		start();
 	}
 
+    // initializes next level (or same if levelNum is the same)
 	public void nextLevel() {
 		try {
+			// initializes level
 			Level level = new Level("Levels/Level " + levelNum + ".txt", comp);
-	    	status.replaceRange("" + levelNum, 20, 21);
-	    	walls = level.getWalls();
-	    	setGrid(walls);
-	    	mouse.setWalls(walls);
+	    	status.replaceRange("" + levelNum, 20, 21);		// updates status
+	    	walls = level.getWalls();						// sets wall list
+	    	setGrid(walls);									// and grid
+	    	mouse.setWalls(walls);							// and passes it on
+	    	// new initial positions for Chell because new level
 	    	initialX = level.getX();
 	    	initialY = level.getY();
 	    	xPos = initialX;
@@ -82,29 +90,30 @@ public class Keyboard extends KeyAdapter {
 		} catch (IOException e) {System.out.println(e.getMessage());}
 	}
 
-	// pre: none
-	// post: moves with WADS, sets portal direction with 1234 and 
-	//       sets direction key pressed to true
+	// WASD moving controls for Chell
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (!pause) {
 			int keyCode = e.getKeyCode();
 			switch(keyCode) {
-				case KeyEvent.VK_W:											// W - jumps
+				// W - jump
+				case KeyEvent.VK_W:
 					if (!isValid(xPos, yPos + 1) && isValid(xPos, yPos - 10)) {
 		    			yPos -= 10;
 		    			yVel -= 2;
 		    			comp.updateImage(xPos, yPos);
 					} break;
-				case KeyEvent.VK_A:											// A - moves left
-		    		comp.setImage("Images/chell_left.gif");
+				// A - moves left
+				case KeyEvent.VK_A:
+					comp.setImage("Images/chell_left.gif");
 					if (isValid(xPos - 10, yPos)) {
 		    			xPos -= 10;
 		    			if (xVel - 1 >= 0 - TERMINALVELX)
 		    				xVel -= 0.5;
 		    			comp.updateImage(xPos, yPos);
 					} break;
-				case KeyEvent.VK_S:											//S - moves down
+				// S - moves down
+				case KeyEvent.VK_S:
 					if (isValid(xPos, yPos + 10)) {
 		    			yPos += 10;
 		    			if (yVel + 1 <= TERMINALVELY)
@@ -113,7 +122,8 @@ public class Keyboard extends KeyAdapter {
 		    				yVel = TERMINALVELY;
 		    			comp.updateImage(xPos, yPos);
 					} break;
-				case KeyEvent.VK_D:											// D - moves right
+				// D - moves right
+				case KeyEvent.VK_D:
 		    		comp.setImage("Images/chell_right.gif");
 					if (isValid(xPos + 10, yPos)) {
 		    			xPos += 10;
@@ -121,22 +131,23 @@ public class Keyboard extends KeyAdapter {
 		    				xVel += 0.5;
 		    			comp.updateImage(xPos, yPos);
 					} break;
+				//other key pressed - ignore
 				default:
-					//other key pressed: ignore
 					break;
 			}
 		}
 	}
 
-	// MOVING IN GENERAL
-    // pre: none
-    // post: moves Chell with time, implementing gravity and friction when appropriate
+	// maintains physics properties (gravity, friction, momentum)
     private void spaceTime() {
     	long lastTime = System.currentTimeMillis();
+    	// keeps going until game is complete
     	while (playing)	{
-    		// keeps going until game is complete
     		while (!pause) {
     			comp.requestFocusInWindow();
+    			
+    			// determines whether or not background music has ended,
+    			// if so restarts music
     			try {
 	    			if (music.available() == 0) {
 	    				music = new AudioStream(new FileInputStream("Audio/background.wav"));
@@ -146,20 +157,26 @@ public class Keyboard extends KeyAdapter {
     				System.out.println("Error Occurred: " + e);
     			}
 	    		long time = System.currentTimeMillis();
+	    		
+	    		// if it has been 10 milliseconds, does physics stuff
 	     		if (time - 10 > lastTime) {
-	    			// increments every 10 milliseconds
+	     			
+	     			// updates time in status
 	     			totalTime += time - lastTime;
 	     			String display = getTime();
 	     	    	status.replaceRange(display, 47, status.getText().length());
+	     	    	
+	     	    	// resets 'previous' time
 	    			lastTime = time;
-	    			// resets 'previous' time
+	    			
+	    			// adds gravity if appropriate
 	    			if (yVel + GRAVITY <= TERMINALVELY)
-	    				// adds gravity constant to vertical velocity
 	    				yVel += GRAVITY;
 	    			else
 	    				yVel = TERMINALVELY;
+	    			
+	    			// adds friction if appropriate
 	    			if (!pause && !isValid(xPos, yPos + 1)) {
-	    				// determines whether or not Chell is on a surface/has friction
 	    				if (xVel > 0) {
 	    					xVel -= FRICTION;
 	    					if (xVel < 0)
@@ -170,7 +187,9 @@ public class Keyboard extends KeyAdapter {
 	    						xVel = 0;
 	    				}
 	    			}
-	    			if (isValid((int)(xPos + xVel), yPos))	// gives Chell inertia
+	    			
+	    			// handles x and y momentum
+	    			if (isValid((int)(xPos + xVel), yPos))
 	    				xPos += xVel;
 	    			else if (!pause) {
 	    				int check = (int) xVel;
@@ -200,6 +219,8 @@ public class Keyboard extends KeyAdapter {
 	    				if (!pause)
 	    					yPos += check;
 	    			}
+	    			
+	    			// updates image appropriately
 	    			comp.updateImage(xPos, yPos);
 	    		}
 	    	}
@@ -208,12 +229,13 @@ public class Keyboard extends KeyAdapter {
     	}
     }
     
-    // pre: walls is not null
-    // post: returns whether or not certain potential position is valid
+    // determines whether x,y position is a valid position
     private boolean isValid(int x, int y) {	
+    	// not valid if game is paused
     	if (pause)
     		return false;
     	
+    	// coordinates to check
     	boolean answer = true;
     	int lx = (x + 10) / 32;		// left x
     	int mx = (x + 32) / 32;		// middle x
@@ -222,27 +244,35 @@ public class Keyboard extends KeyAdapter {
     	int my = (y + 32) / 32;		// middle y
     	int by = (y + 58) / 32;		// bottom y
     	
+    	// not valid if out of bounds
     	if (lx < 0 || rx >= 32 || ty < 0 || by >= 22)
     		return false;
 
+    	// array of coordinates to check
     	int[] check = {grid[lx][ty], grid[mx][ty], grid[rx][ty], 
     				   grid[lx][my], grid[rx][my], 
     				   grid[lx][by], grid[mx][by], grid[rx][by]};
   
+    	// checks coordinates
     	for (int i = 0; i < check.length; i++) {
-    		// Checks list of walls to see if there's a wall at that position
     		if (!pause) {
 	    		if (check[i] != -1) {
 	    			Wall a = walls.get(check[i]);
+	    			
+	    			// handles case of portal
 					if (a instanceof Portal) {
 						Portal b = (Portal)a;
 						return throughPortal(b);	// moves through portal
-					} else if (a instanceof Spike) {
-						// you died...
+					} 
+					
+					// handles case of spike (aka you died)
+					else if (a instanceof Spike) {
 						comp.updateImage(x,y);
+						// decrements lives and updates status
 						lives--;
 				    	status.replaceRange(lives.toString(), 34, 35);
 				    	end();
+				    	// plays audio
 						try {
 							FileInputStream death = new FileInputStream("Audio/Death.wav");
 							AudioPlayer.player.start(death);
@@ -254,14 +284,18 @@ public class Keyboard extends KeyAdapter {
 							System.out.println("Error occurred: " + e.getMessage());
 						} 
 				    	return false;
-					} else if (a instanceof Door) {
-						// you completed this level
+					} 
+					
+					// handles case of door (aka you completed the level)
+					else if (a instanceof Door) {
 						xVel = 0;
 						yVel = 0;
 						levelNum++;
 						end();
 						return false;
 					}
+					
+					// if case of wall, invalid
 					answer = false;
 	    		}
 	    	}
@@ -269,46 +303,59 @@ public class Keyboard extends KeyAdapter {
     	return answer;
     }
     
-    // MOVING BETWEEN PORTALS
-    // pre: none
-    // post: finds other portal and transfers Chell there, preserving velocity
+    // moving through portals
     private boolean throughPortal(Portal here) {
+    	
+    	// checks which portal you entered
     	boolean blue = here.isBlue();
     	int thisDir = here.getDirection();
+    	
+    	// checks for index of other portal
     	int otherInd = mouse.getPortal(!blue);
     	if (otherInd != -1) {
 	    	Portal other = (Portal) walls.get(otherInd);
 			int nextDir = other.getDirection();
 			int nextX = other.getX();
 			int nextY = other.getY();
+			
+			// transfers Chell through portal
 			doDirections(thisDir, nextDir, nextX, nextY);
 	    	comp.updateImage(xPos, yPos);
+	    	
+	    	// successfully moved through portal
 	    	return true;
-	    } return false;
+	    } 
+    	
+    	// no other portal to move through
+    	return false;
     }
-    // pre: none
-    // post: updates position and velocity if valid portals
+    
+    // reconfigures Chell's position, based on the direction of the next portal
     private void doDirections (int thisDir, int nextDir, int x, int y){
     	boolean valid = true;
     	switch (nextDir) {
+    		// up
     		case 1:
 				if (isValid(x - 16, y - 64)) {xPos = x - 16; yPos = y - 64;} 
 				else if (isValid(x, y - 64)) {xPos = x; yPos = y - 64;} 
 				else if (isValid(x - 32, y - 64)) {xPos = x - 32; yPos = y - 64;} 
 				else {valid = false;}
 				break;
+			// right
     		case 2:
 				if (isValid(x + 32, y - 16)) {xPos = x + 32; yPos = y - 16;} 
 				else if (isValid(x + 32, y)) {xPos = x + 32; yPos = y;} 
 				else if (isValid(x + 32, y - 32)) {xPos = x + 32; yPos = y - 32;} 
 				else {valid = false;}
 				break;
+			// down
     		case 3:
 				if (isValid(x - 16, y + 32)) {xPos = x - 16; yPos = y + 32;} 
 				else if (isValid(x, y + 32)) {xPos = x; yPos = y + 32;} 
 				else if (isValid(x - 32, y + 32)) {xPos = x - 32; yPos = y + 32;} 
 				else {valid = false;}
 				break;
+			// left
     		case 4:
 				if (isValid(x - 64, y - 16)) {xPos = x - 64; yPos = y - 16;} 
 				else if (isValid(x - 64, y)) {xPos = x - 64; yPos = y;} 
@@ -318,11 +365,15 @@ public class Keyboard extends KeyAdapter {
     		default:
     			valid = false;
     			break;
-    	} if (valid)
+    	} 
+    	
+    	// if valid portal, adjusts Chell's velocity appropriately
+    	if (valid)
 			doVelocity(thisDir, nextDir);
     }
-    // pre: none
-    // post: updates velocity to be appropriate direction
+    
+    // reconfigures Chell's velocity so momentum is conserved,
+    // based on directions of two portals
     private void doVelocity(int thisDir, int nextDir) {
 		if (thisDir == nextDir) {
 			xVel = 0 - xVel;
@@ -344,38 +395,54 @@ public class Keyboard extends KeyAdapter {
 			comp.setImage("Images/chell_left.gif");
     }
     
+    // sets the mouse
     public void setMouse(Mouse mouse) {
 		this.mouse = mouse;
 	}
 
+    // returns Chell's current number of lives
 	public int getLives() {
 		return lives;
 	}
 
+	// returns the current time, as a string
 	public String getTime() {
+		
+		// totalTime is in milliseconds, so divides by 1000 to get seconds
 		double seconds = totalTime / 1000.0;
+		
+		// determines the number of minutes passed
 		int minutes = (int) seconds / 60;
 		seconds = Math.round((seconds % 60) * 1000) / 1000.0;
+		
+		// formats returned time string
 		if (seconds >= 10) 
 			return minutes + ":" + seconds;
 		else
 			return minutes + ":0" + seconds;
 	}
 
+	// sets the grid of indexes based on wall list
 	private void setGrid(ArrayList<Wall> wl) {
+		
+		// -1 if no wall at that position
 		for (int x = 0; x < 32; x++) {
 			for (int y = 0; y < 22; y++) {
 				grid[x][y] = -1;
 			}
 		}
+		
+		// replaces -1 with actual wall index for all walls in list
 		for (int i = 0; i < wl.size(); i++) {
 			Wall w = wl.get(i);
 			grid[w.getX()/32][w.getY()/32] = i;
 		}
 	}
 
+	// pauses or unpauses the game and audio appropriately
 	public void setPause(boolean pause) {
     	this.pause = pause;
+    	// stops or starts audio
     	try {
 	    	if (pause == true) {
     			AudioPlayer.player.stop(music);
@@ -390,16 +457,19 @@ public class Keyboard extends KeyAdapter {
 		}
     }
     
+	// returns current level number
     public int getLevel() {
     	return levelNum;
     }
     
+    // starts game/level
     public void start() {
 		setPause(false);
 		playing = true;
 		spaceTime();
 	}
 
+    // ends game/level
 	public void end() {
     	playing = false;
     	setPause(true);

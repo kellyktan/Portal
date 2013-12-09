@@ -1,5 +1,7 @@
+// doors
 public class Door extends Wall {
-	public Door(int hereX, int hereY) {
-		super(hereX, hereY, false, 0);
+	// constructs non-portalable doors at (x,y)
+	public Door(int x, int y) {
+		super(x, y, false, 0);
 	}
 }
