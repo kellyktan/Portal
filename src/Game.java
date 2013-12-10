@@ -29,7 +29,12 @@ public class Game {
 	// starts playing the game
 	public void play() {
 		introduction();		// introduces the game and shows instructions
-		Object[] startOptions = {"Begin", "Select Test Chamber"};	// menu options
+		menu();
+	}
+	
+	// start menu
+	public void menu() {		
+		Object[] startOptions = {"Begin", "Select Test Chamber", "Quit"};	// menu options
 		// shows menu options, default is 'begin'
 		int response = JOptionPane.showOptionDialog(null, "Menu", 
 			"Aperture Science Enrichment Center", JOptionPane.DEFAULT_OPTION, 
@@ -39,6 +44,8 @@ public class Game {
 			init(1);
 		else if (response == 1)		// opens menu with different menu options
 			levelSelect();		
+		// else if response is 2 (Quit)
+		// does nothing and program ends
 	}
 	
 	// menu for selecting a level
@@ -51,8 +58,10 @@ public class Game {
 			"Select Test Chamber", JOptionPane.PLAIN_MESSAGE, 
 			new ImageIcon("Images/aperture.png"), levels, levels[0]);
 		// gets selected level number from selected string
-		int respLevel = Integer.parseInt(response.substring(response.length() - 1));
-		init(respLevel);	// initializes selected level
+		if (response != null) {
+			int respLevel = Integer.parseInt(response.substring(response.length() - 1));
+			init(respLevel);	// initializes selected level
+		}
 	}	
 	
 	// initializes the game, starting at level 'num'
@@ -81,6 +90,8 @@ public class Game {
 	                	keyboard.setPause(true);		
 	                    instructions();
 	                    keyboard.setPause(false);
+	                    frame.toFront();
+	                    comp.requestFocusInWindow();
 	                }
 	            });
 	        // button for reseting level
@@ -125,6 +136,7 @@ public class Game {
 						new ImageIcon("Images/GLaDOS.png"));
 					AudioPlayer.player.stop(ending);
 			}
+			menu();
 		} catch (IOException e) {
 			System.out.println("Error Occurred: " + e.getMessage());
 		}
@@ -141,7 +153,7 @@ public class Game {
 				".\nBefore we start, however, keep in mind that although fun and " +
 				"learning are\nthe primary goals of all enrichment center activities," +
 				" serious injuries may occur.\nFor your own safety and the safety of" +
-				" others, please refrain from--\nPor favor bord—n de fallar.  Muchos " +
+				" others, please refrain from--\nPor favor bordon de fallar.  Muchos " +
 				"gracias de fallar gracias.", "Aperture Science Enrichment Center" +
 				" welcomes Subject #1498", JOptionPane.PLAIN_MESSAGE,
 				new ImageIcon("Images/GLaDOS.png"));

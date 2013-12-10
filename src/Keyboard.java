@@ -93,6 +93,7 @@ public class Keyboard extends KeyAdapter {
 	// WASD moving controls for Chell
 	@Override
 	public void keyPressed(KeyEvent e) {
+		comp.requestFocusInWindow();
 		if (!pause) {
 			int keyCode = e.getKeyCode();
 			switch(keyCode) {
@@ -444,7 +445,7 @@ public class Keyboard extends KeyAdapter {
     	this.pause = pause;
     	// stops or starts audio
     	try {
-	    	if (pause == true) {
+	    	if (pause) {
     			AudioPlayer.player.stop(music);
 	    	} else {
 	    		if (music.available() == 0)
