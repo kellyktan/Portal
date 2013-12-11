@@ -91,7 +91,7 @@ public class Game {
 	                    instructions();
 	                    keyboard.setPause(false);
 	                    frame.toFront();
-	                    comp.requestFocusInWindow();
+	                    comp.requestFocus();
 	                }
 	            });
 	        // button for reseting level
@@ -109,7 +109,7 @@ public class Game {
 			frame.pack();
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setVisible(true);
-			comp.requestFocusInWindow();
+			comp.requestFocus();
 			// starts appropriate level
 			keyboard.startLevel(start, num);
 			// proceeds to appropriate level

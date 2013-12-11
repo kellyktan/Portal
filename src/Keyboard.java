@@ -93,7 +93,7 @@ public class Keyboard extends KeyAdapter {
 	// WASD moving controls for Chell
 	@Override
 	public void keyPressed(KeyEvent e) {
-		comp.requestFocusInWindow();
+		comp.requestFocus();
 		if (!pause) {
 			int keyCode = e.getKeyCode();
 			switch(keyCode) {
@@ -145,7 +145,7 @@ public class Keyboard extends KeyAdapter {
     	// keeps going until game is complete
     	while (playing)	{
     		while (!pause) {
-    			comp.requestFocusInWindow();
+    			comp.requestFocus();
     			
     			// determines whether or not background music has ended,
     			// if so restarts music
@@ -451,7 +451,7 @@ public class Keyboard extends KeyAdapter {
 	    		if (music.available() == 0)
 	    			music = new AudioStream(new FileInputStream("Audio/background.wav"));
 	    		AudioPlayer.player.start(music);
-	    		comp.requestFocusInWindow();
+	    		comp.requestFocus();
 	    	}
 		} catch (IOException e) {
 			System.out.println("Error Occurred: " + e.getMessage());

@@ -27,7 +27,7 @@ public class Mouse extends MouseAdapter {
 	@Override
 	public void mouseClicked(MouseEvent e)
 	{
-		comp.requestFocusInWindow();
+		comp.requestFocus();
 		try {
 			
 			// plays audio
