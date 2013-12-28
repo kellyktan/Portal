@@ -463,6 +463,11 @@ public class Keyboard extends KeyAdapter {
     	return levelNum;
     }
     
+    // sets current level number
+    public void setLevel(int newLevel) {
+    	levelNum = newLevel;
+    }
+    
     // starts game/level
     public void start() {
 		setPause(false);

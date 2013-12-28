@@ -17,7 +17,8 @@ public class Game {
 
 	// private variables
 	private JFrame frame;				 // the frame the main game exists within
-	private JPanel panel;				 // the panel the game exists within
+	private JPanel gamePanel;				 // the panel the game exists within
+	private JPanel menuPanel;
 	private JTextArea status;			 // the status of the game: test chamber #,
 										 // lives, time
 	private GameComponent comp;			 // the game component within the panel
@@ -61,16 +62,20 @@ public class Game {
 		if (response != null) {
 			int respLevel = Integer.parseInt(response.substring(response.length() - 1));
 			init(respLevel);	// initializes selected level
-		}
+		} else
+			menu();
 	}	
 	
 	// initializes the game, starting at level 'num'
 	private void init(int num) {
 		try {
 			frame = new JFrame("Aperture Laboratories");	// creates frame
-			panel = new JPanel();							// creates panel
-			frame.add(panel, BorderLayout.SOUTH);			// adds panel to frame
-			panel.setLayout(new BorderLayout());			
+			menuPanel = new JPanel();						// creates panels
+			gamePanel = new JPanel();
+			frame.add(menuPanel, BorderLayout.NORTH);		// adds panels to frame
+			frame.add(gamePanel, BorderLayout.SOUTH);	
+			menuPanel.setLayout(new BorderLayout());
+			gamePanel.setLayout(new BorderLayout());			
 			// the status text
 			status = new JTextArea("\n     Test Chamber 0" + num + "     " +
 				"Lives:  " + LIVES + "     Time:  0:00.000", 3, 65);
@@ -94,18 +99,33 @@ public class Game {
 	                    comp.requestFocus();
 	                }
 	            });
-	        // button for reseting level
-	        final JButton reset = new JButton("Reset");
-	        reset.addActionListener(new ActionListener() {
-	                public void actionPerformed(ActionEvent e) {
-	                	keyboard.end();
-	                }
-	            });
+	        // button for main menu
+	        final JButton menu = new JButton("Main Menu");
+	        menu.addActionListener(new ActionListener() {
+	        		public void actionPerformed(ActionEvent e) {
+	        			keyboard.setPause(true);
+
+	        			Object[] options = {"Yes", "No"};	// menu options
+	        			int response = JOptionPane.showOptionDialog(null, 
+        					"Current progress will be lost.\nAre you sure?", "Warning",
+        					JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, 
+        					new ImageIcon("Images/aperture.png"), options, options[0]);
+	        			if (response == 0) {
+	        				keyboard.setLevel(TOTALLEVELS + 2);
+        					keyboard.end();
+	        			}
+        				else if (response == 1) {
+        					keyboard.setPause(false);
+        					frame.toFront();
+        					comp.requestFocus();
+        				}
+	        		}
+	        	});
 	        // adds various components to the frame and panel
-			panel.add(start.getComponent());
-			frame.add(status, BorderLayout.WEST);
-			frame.add(reset);
-			frame.add(instructions, BorderLayout.EAST);
+			gamePanel.add(start.getComponent());
+			menuPanel.add(status, BorderLayout.WEST);
+			menuPanel.add(menu);
+			menuPanel.add(instructions, BorderLayout.EAST);
 			frame.pack();
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setVisible(true);
@@ -184,14 +204,14 @@ public class Game {
 	// shows instructions
 	private void instructions() {
 		JOptionPane.showMessageDialog(null, "\nINSTRUCTIONS:\n\nMake your way through" +
-				" each test chamber in order to reach the door and move on to the next" +
-				" chamber\n\nNAVIGATION:  W = jump, A = left, S = down, D = right" +
-				"\n\nPLACING PORTALS:  Click with either the left (blue) or " +
-				"right (orange) mouse button in the desired shooting\n     direction," +
-				" relative to Test Subject #1498  (Portals can be placed on the " +
-				"grey, portalable walls)\n\nHINT:  Momentum is conserved through portals" +
-				"\n\nWARNING:  Spikes will kill you if you touch them",
-				"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE,
-				new ImageIcon("Images/aperture.png"));		
+			" each test chamber in order to reach the door and move on to the next" +
+			" chamber\n\nNAVIGATION:  W = jump, A = left, S = down, D = right" +
+			"\n\nPLACING PORTALS:  Click with either the left (blue) or " +
+			"right (orange) mouse button in the desired shooting\n     direction," +
+			" relative to Test Subject #1498  (Portals can be placed on the " +
+			"grey, portalable walls)\n\nHINT:  Momentum is conserved through portals" +
+			"\n\nWARNING:  Spikes will kill you if you touch them",
+			"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE,
+			new ImageIcon("Images/aperture.png"));		
 	}
 }
