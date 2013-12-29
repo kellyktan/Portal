@@ -1,3 +1,7 @@
+import java.awt.*;
+
+import javax.swing.ImageIcon;
+
 // wall
 public class Wall {
 	
@@ -42,5 +46,13 @@ public class Wall {
 	// returns direction
 	public int getDirection() {
 		return direction;
+	}
+	
+	// draws wall
+	public void draw(Graphics g) {
+		if (portalable)
+			g.drawImage(new ImageIcon("Images/grey.jpg").getImage(), x, y, null);
+		else
+			g.drawImage(new ImageIcon("Images/black.jpg").getImage(), x, y, null);
 	}
 }

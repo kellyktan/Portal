@@ -1,3 +1,7 @@
+import java.awt.*;
+
+import javax.swing.ImageIcon;
+
 // portal
 public class Portal extends Wall {
 	
@@ -14,5 +18,13 @@ public class Portal extends Wall {
 	// returns portal color
 	public boolean isBlue() {
 		return blue;
+	}
+	
+	@Override
+	public void draw(Graphics g) {
+		if (blue)
+			g.drawImage(new ImageIcon("Images/blue.gif").getImage(), getX(), getY(), null);
+		else
+			g.drawImage(new ImageIcon("Images/orange.gif").getImage(), getX(), getY(), null);
 	}
 }

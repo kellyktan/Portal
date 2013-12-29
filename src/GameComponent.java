@@ -35,24 +35,7 @@ public class GameComponent extends JComponent {
     	g.drawImage(background, 0, 0, null); 			// draws background first
     	g.drawImage(foreground, xPos, yPos, null);		// draws Chell
     	for (Wall a: walls) {							// draws Walls
-    		if (a instanceof Portal) {
-    			Portal b = (Portal)a;
-    			if (b.isBlue())
-    				g.drawImage(new ImageIcon("Images/blue.gif").getImage(), a.getX(), a.getY(), null);
-    			else
-    				g.drawImage(new ImageIcon("Images/orange.gif").getImage(), a.getX(), a.getY(), null);
-	
-    		} else if (a instanceof Spike) {
-    			int dir = a.getDirection();
-    			g.drawImage(new ImageIcon("Images/spike_" + dir + ".png").getImage(), a.getX(), a.getY(), null);
-    		} else if (a instanceof Door) {
-    			g.drawImage(new ImageIcon("Images/door.jpg").getImage(), a.getX(), a.getY(), null);
-    		} else {
-    			if (a.isPortalable())
-	    			g.drawImage(new ImageIcon("Images/grey.jpg").getImage(), a.getX(), a.getY(), null);
-	    		else
-	    			g.drawImage(new ImageIcon("Images/black.jpg").getImage(), a.getX(), a.getY(), null);
-    		}
+    		a.draw(g);
     	}
   	}
 
