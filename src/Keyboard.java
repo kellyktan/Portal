@@ -90,7 +90,7 @@ public class Keyboard extends KeyAdapter {
 		} catch (IOException e) {System.out.println(e.getMessage());}
 	}
 
-	// WASD moving controls for Chell
+	// WAD moving controls for Chell
 	@Override
 	public void keyPressed(KeyEvent e) {
 		comp.requestFocus();
@@ -111,16 +111,6 @@ public class Keyboard extends KeyAdapter {
 		    			xPos -= 10;
 		    			if (xVel - 1 >= 0 - TERMINALVELX)
 		    				xVel -= 0.5;
-		    			comp.updateImage(xPos, yPos);
-					} break;
-				// S - moves down
-				case KeyEvent.VK_S:
-					if (isValid(xPos, yPos + 10)) {
-		    			yPos += 10;
-		    			if (yVel + 1 <= TERMINALVELY)
-		    				yVel += 0.5;
-		    			else
-		    				yVel = TERMINALVELY;
 		    			comp.updateImage(xPos, yPos);
 					} break;
 				// D - moves right

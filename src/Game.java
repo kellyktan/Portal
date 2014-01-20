@@ -90,7 +90,7 @@ public class Game {
 			Level start = new Level("Levels/Level " + num + ".txt", comp);
 			// button for showing instructions/pausing game
 	        final JButton instructions = new JButton("Instructions");
-	        instructions.addActionListener(new ActionListener() {
+	        	instructions.addActionListener(new ActionListener() {
 	                public void actionPerformed(ActionEvent e) {
 	                	keyboard.setPause(true);		
 	                    instructions();
@@ -101,7 +101,7 @@ public class Game {
 	            });
 	        // button for main menu
 	        final JButton menu = new JButton("Main Menu");
-	        menu.addActionListener(new ActionListener() {
+	        	menu.addActionListener(new ActionListener() {
 	        		public void actionPerformed(ActionEvent e) {
 	        			keyboard.setPause(true);
 
@@ -205,7 +205,7 @@ public class Game {
 	private void instructions() {
 		JOptionPane.showMessageDialog(null, "\nINSTRUCTIONS:\n\nMake your way through" +
 			" each test chamber in order to reach the door and move on to the next" +
-			" chamber\n\nNAVIGATION:  W = jump, A = left, S = down, D = right" +
+			" chamber\n\nNAVIGATION:  W = jump, A = left, D = right" +
 			"\n\nPLACING PORTALS:  Click with either the left (blue) or " +
 			"right (orange) mouse button in the desired shooting\n     direction," +
 			" relative to Test Subject #1498  (Portals can be placed on the " +
