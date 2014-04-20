@@ -4,7 +4,7 @@ import java.io.*;
 
 import javax.swing.*;
 
-//import sun.audio.*;
+import sun.audio.*;
 
 // contains main game logistics
 public class Game {
@@ -180,11 +180,11 @@ public class Game {
 			/*AudioPlayer.player.stop(intro);
 		} catch (IOException e) {
 			System.out.println("Error occurred: " + e.getMessage());
-		}
+		}*/
 		
 		try {
 			FileInputStream intro = new FileInputStream("Audio/Intro_2.wav");
-			AudioPlayer.player.start(intro);*/
+			AudioPlayer.player.start(intro);
 			JOptionPane.showMessageDialog(null, "You are now in possession of the" +
 				" Aperture Science Handheld Portal Device.\nWith it, you can create" +
 				" your own portals.  These interdimensional gates have been\nproven" +
@@ -194,10 +194,10 @@ public class Game {
 				"Device in liquid, even partially\n  -  Most importantly, under no" +
 				" circumstances should you--", "Aperture Science Enrichment Center",
 				JOptionPane.PLAIN_MESSAGE, new ImageIcon("Images/GLaDOS.png"));
-			/*AudioPlayer.player.stop(intro);
+			AudioPlayer.player.stop(intro);
 		} catch (IOException e) {
 			System.out.println("Error occurred: " + e.getMessage());
-		}*/
+		}
 		instructions();
 	}
 	
