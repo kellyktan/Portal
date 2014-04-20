@@ -4,7 +4,7 @@ import java.io.*;
 
 import javax.swing.*;
 
-import sun.audio.*;
+//import sun.audio.*;
 
 // contains main game logistics
 public class Game {
@@ -139,22 +139,22 @@ public class Game {
 			frame.dispose();
 			// shows appropriate game over frame
 			if (keyboard.getLives() == 0) {
-					FileInputStream cake = new FileInputStream("Audio/Game_Over.wav");
-					AudioPlayer.player.start(cake);
+					//FileInputStream cake = new FileInputStream("Audio/Game_Over.wav");
+					//AudioPlayer.player.start(cake);
 					JOptionPane.showMessageDialog(null, "Game Over",
 							"Aperture Science", JOptionPane.PLAIN_MESSAGE,
 							new ImageIcon("Images/GLaDOS.png"));		
-					AudioPlayer.player.stop(cake);
+					//AudioPlayer.player.stop(cake);
 			}
 			else if (keyboard.getLevel() == TOTALLEVELS + 1) {
 				String time = keyboard.getTime();
-					FileInputStream ending = new FileInputStream("Audio/Win.wav");
-					AudioPlayer.player.start(ending);
+					//FileInputStream ending = new FileInputStream("Audio/Win.wav");
+					//AudioPlayer.player.start(ending);
 					JOptionPane.showMessageDialog(null, "You win.  You" +
 						" Monster.\n\nLives:  " + keyboard.getLives() + "\n\nTime:  " + 
 						time, "Aperture Science", JOptionPane.PLAIN_MESSAGE,
 						new ImageIcon("Images/GLaDOS.png"));
-					AudioPlayer.player.stop(ending);
+					//AudioPlayer.player.stop(ending);
 			}
 			menu();
 		} catch (IOException e) {
@@ -164,9 +164,9 @@ public class Game {
 
 	// shows introduction
 	private void introduction() {
-		try {
+		/*try {
 			FileInputStream intro = new FileInputStream("Audio/Intro_1.wav");
-			AudioPlayer.player.start(intro);
+			AudioPlayer.player.start(intro);*/
 			JOptionPane.showMessageDialog(null, "Hello and, again, welcome to the" + 
 				" Aperture Science computer-aided enrichment center.\nYour specimen" + 
 				" has been processed and we are now ready to begin the test proper" +
@@ -177,14 +177,14 @@ public class Game {
 				"gracias de fallar gracias.", "Aperture Science Enrichment Center" +
 				" welcomes Subject #1498", JOptionPane.PLAIN_MESSAGE,
 				new ImageIcon("Images/GLaDOS.png"));
-			AudioPlayer.player.stop(intro);
+			/*AudioPlayer.player.stop(intro);
 		} catch (IOException e) {
 			System.out.println("Error occurred: " + e.getMessage());
 		}
 		
 		try {
 			FileInputStream intro = new FileInputStream("Audio/Intro_2.wav");
-			AudioPlayer.player.start(intro);
+			AudioPlayer.player.start(intro);*/
 			JOptionPane.showMessageDialog(null, "You are now in possession of the" +
 				" Aperture Science Handheld Portal Device.\nWith it, you can create" +
 				" your own portals.  These interdimensional gates have been\nproven" +
@@ -194,10 +194,10 @@ public class Game {
 				"Device in liquid, even partially\n  -  Most importantly, under no" +
 				" circumstances should you--", "Aperture Science Enrichment Center",
 				JOptionPane.PLAIN_MESSAGE, new ImageIcon("Images/GLaDOS.png"));
-			AudioPlayer.player.stop(intro);
+			/*AudioPlayer.player.stop(intro);
 		} catch (IOException e) {
 			System.out.println("Error occurred: " + e.getMessage());
-		}
+		}*/
 		instructions();
 	}
 	
