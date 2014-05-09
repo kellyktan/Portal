@@ -164,9 +164,14 @@ public class Game {
 
 	// shows introduction
 	private void introduction() {
-		/*try {
+		JOptionPane.showMessageDialog(null, "You, [subject name here], must be the " 
+			+ "pride of [subject hometown here]!\n\nShall we begin?\n", 
+			"Aperture Science Enrichment Center", JOptionPane.PLAIN_MESSAGE, 
+			new ImageIcon("Images/GLaDOS.png"));
+		
+		try {
 			FileInputStream intro = new FileInputStream("Audio/Intro_1.wav");
-			AudioPlayer.player.start(intro);*/
+			AudioPlayer.player.start(intro);
 			JOptionPane.showMessageDialog(null, "Hello and, again, welcome to the" + 
 				" Aperture Science computer-aided enrichment center.\nYour specimen" + 
 				" has been processed and we are now ready to begin the test proper" +
@@ -177,10 +182,10 @@ public class Game {
 				"gracias de fallar gracias.", "Aperture Science Enrichment Center" +
 				" welcomes Subject #1498", JOptionPane.PLAIN_MESSAGE,
 				new ImageIcon("Images/GLaDOS.png"));
-			/*AudioPlayer.player.stop(intro);
+			AudioPlayer.player.stop(intro);
 		} catch (IOException e) {
 			System.out.println("Error occurred: " + e.getMessage());
-		}*/
+		}
 		
 		try {
 			FileInputStream intro = new FileInputStream("Audio/Intro_2.wav");
