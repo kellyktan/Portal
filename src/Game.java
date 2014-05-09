@@ -139,22 +139,22 @@ public class Game {
 			frame.dispose();
 			// shows appropriate game over frame
 			if (keyboard.getLives() == 0) {
-					//FileInputStream cake = new FileInputStream("Audio/Game_Over.wav");
-					//AudioPlayer.player.start(cake);
+					FileInputStream cake = new FileInputStream("Audio/Game_Over.wav");
+					AudioPlayer.player.start(cake);
 					JOptionPane.showMessageDialog(null, "Game Over",
 							"Aperture Science", JOptionPane.PLAIN_MESSAGE,
 							new ImageIcon("Images/GLaDOS.png"));		
-					//AudioPlayer.player.stop(cake);
+					AudioPlayer.player.stop(cake);
 			}
 			else if (keyboard.getLevel() == TOTALLEVELS + 1) {
 				String time = keyboard.getTime();
-					//FileInputStream ending = new FileInputStream("Audio/Win.wav");
-					//AudioPlayer.player.start(ending);
+					FileInputStream ending = new FileInputStream("Audio/Win.wav");
+					AudioPlayer.player.start(ending);
 					JOptionPane.showMessageDialog(null, "You win.  You" +
 						" Monster.\n\nLives:  " + keyboard.getLives() + "\n\nTime:  " + 
 						time, "Aperture Science", JOptionPane.PLAIN_MESSAGE,
 						new ImageIcon("Images/GLaDOS.png"));
-					//AudioPlayer.player.stop(ending);
+					AudioPlayer.player.stop(ending);
 			}
 			menu();
 		} catch (IOException e) {
