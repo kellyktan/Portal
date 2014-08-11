@@ -35,7 +35,7 @@ public class Keyboard extends KeyAdapter {
     	this.lives = lives;			// initial lives
     	totalTime = 0;
     	playing = false;			// not playing when created
-    	pause = false;				// paused when created
+    	pause = false;				// unpaused when created
     	grid = new int[32][22];		// creates array for wall indexes
     	// sets background music
     	try {
